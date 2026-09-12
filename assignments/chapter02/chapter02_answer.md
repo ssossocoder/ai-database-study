@@ -62,6 +62,42 @@ search_path: practice, "$user", public
 
 ![PostgreSQL 현재 위치 확인](./images/step01_environment.png)
 
+~~~text
+DBeaver에서 PostgreSQL 현재 접속 환경 확인
+
+
+DBeaver에서 현재 데이터베이스, 사용자, 스키마, `search_path`를 확인했다. 현재 데이터베이스는 `postgres`, 사용자는 `postgres`, 스키마는 `practice`로 나타났다.
+~~~
+
+
+
+![학생·강의·수강신청 JOIN 결과](./images/step02_join_result.png)
+
+~~~text
+
+JOIN으로 확인한 학생·강의·수강신청 관계
+세 테이블을 JOIN하여 학생 이름, 강의 제목, 수강신청 상태를 함께 조회했다. 조회 결과의 한 행은 학생 한 명이 강의 한 개를 신청한 수강신청 사건 한 건을 의미한다.
+~~~
+
+
+
+![존재하지 않는 학생을 참조한 FK 오류](./images/step04_fk_error.png)
+
+~~~text
+외래키 제약조건에 의한 잘못된 참조 차단
+존재하지 않는 `student_id = 999`를 입력하자 PostgreSQL이 외래키 제약조건 위반 오류를 발생시켰다. 이를 통해 수강신청 테이블이 실제로 존재하는 학생만 참조하도록 제한된다는 것을 확인했다.
+~~~
+
+
+
+![테이블 제약조건 확인](./images/step03_constraints.png)
+
+~~~text
+ PostgreSQL에 등록된 PK·UNIQUE·FK 제약조건
+PostgreSQL 내부 카탈로그를 조회하여 각 테이블에 기본키, UNIQUE, 외래키 제약조건이 실제로 등록되어 있음을 확인했다. 이를 통해 제약조건이 단순한 설명이 아니라 데이터베이스에 적용된 규칙임을 알 수 있다.
+~~~
+
+
 
 ## 2. 데이터베이스 안의 스키마와 테이블 관찰
 
