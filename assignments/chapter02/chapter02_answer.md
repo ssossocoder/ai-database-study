@@ -34,9 +34,9 @@ PostgreSQL 18.6 on aarch64-apple-darwin24.6.0, compiled by Apple clang
 version 17.0.0 (clang-1700.0.13.5), 64-bit
 
 현재 데이터베이스: postgres
-현재 사용자: codex_ch02
-현재 스키마: public
-search_path: "$user", public
+현재 사용자: postgres
+현재 스키마: practice
+search_path: practice, "$user", public
 ~~~
 
 ### 1-3. 구조를 내 말로 설명
@@ -57,9 +57,11 @@ search_path: "$user", public
 → 테이블
 → 행 / 열
 
+
 ### 1-5. 증거 화면
 
-이번 실행은 psql CLI로 진행했기 때문에 GUI 화면 캡처 대신 이 파일에 실행 SQL과 실제 결과를 기록했다.
+![PostgreSQL 현재 위치 확인](./images/step01_environment.png)
+
 
 ## 2. 데이터베이스 안의 스키마와 테이블 관찰
 
@@ -71,12 +73,16 @@ FROM information_schema.schemata
 ORDER BY schema_name;
 ~~~
 
-실제로 확인한 스키마는 다음 네 개였다.
+실제로 확인한 스키마는 다음 일곱개였다.
 
-1. information_schema
-2. pg_catalog
-3. pg_toast
-4. public
+1.information_schema
+2.pg_catalog
+3.pg_temp_2
+4.pg_toast
+5.pg_toast_temp_2
+6.practice
+7.public
+
 
 public은 무엇인가요?
 
@@ -96,15 +102,11 @@ WHERE table_type = 'BASE TABLE'
 ORDER BY table_schema, table_name;
 ~~~
 
-실행 결과는 0행이었다. 이후 TEMP TABLE을 만든 같은 세션에서 다시 확인했을 때에는 다음처럼 임시 스키마의 테이블 세 개가 보였다.
+실행 결과는 0행이었다.
 
-| table_schema | table_name |
-| --- | --- |
-| pg_temp_0 | ch02_courses |
-| pg_temp_0 | ch02_enrollments |
-| pg_temp_0 | ch02_students |
-
-PostgreSQL 설치가 완료되었다고 해서 수업용 사용자 테이블이 이미 존재하는 것은 아니다. 설치와 서버 실행은 테이블 설계·생성과 별개의 작업이기 때문에 사용자 테이블이 없어도 오류가 아니다.
+아직 테이블이 거의 없어도 괜찮은 이유:
+PostgreSQL 설치와 사용자 테이블 생성은 별개의 작업이기 때문이다.
+실습용 테이블은 이후 단계에서 직접 생성한다.
 
 ### 2-3. 관찰 정리
 
@@ -226,7 +228,7 @@ SELECT * FROM ch02_enrollments ORDER BY id;
 | 1001 | 1 | 10 | 신청 |
 | 1002 | 1 | 20 | 수강중 |
 | 1003 | 2 | 10 | 완료 |
-| 1004 | 2 | 20 | 신청 |
+
 
 ### 3-4. 내부 식별자와 업무 식별자
 
@@ -598,21 +600,21 @@ FK는 다른 테이블의 참조 대상 키와 연결하고, FK 제약조건으�
 
 ## 12. 제출 전 자기 점검
 
-- [x] PostgreSQL에서 현재 database / schema / search_path를 확인했다.
-- [x] DBMS, database, schema, table을 구분해서 설명했다.
-- [x] TEMP TABLE 3개를 생성하고 직접 데이터를 조회했다.
-- [x] 각 테이블의 한 행 의미를 작성했다.
-- [x] 테이블과 조회 결과가 다르다는 것을 실제 SQL로 확인했다.
-- [x] ORDER BY를 사용하지 않으면 업무 순서를 가정하면 안 된다는 점을 이해했다.
-- [x] 내부 식별자와 업무 식별자의 차이를 설명했다.
-- [x] PK 중복 입력 실패를 직접 확인했다.
-- [x] 존재하지 않는 FK 참조 실패를 직접 확인했다.
-- [x] FK 값이 반복될 수 있는 이유를 설명했다.
-- [x] AI가 만든 테이블을 내가 먼저 검토했다.
-- [x] AI 설명 중 하나를 본문과 실제 PostgreSQL 결과에 대조했다.
-- [x] 개인 서비스의 테이블 후보를 3개 이상 작성했다.
-- [x] 개인 서비스의 FK 후보와 미확정 정책을 기록했다.
-- [x] 실제 비밀번호·API Key·민감한 접속 정보를 포함하지 않았다.
+- [] PostgreSQL에서 현재 database / schema / search_path를 확인했다.
+- [] DBMS, database, schema, table을 구분해서 설명했다.
+- [] TEMP TABLE 3개를 생성하고 직접 데이터를 조회했다.
+- [] 각 테이블의 한 행 의미를 작성했다.
+- [] 테이블과 조회 결과가 다르다는 것을 실제 SQL로 확인했다.
+- [] ORDER BY를 사용하지 않으면 업무 순서를 가정하면 안 된다는 점을 이해했다.
+- [] 내부 식별자와 업무 식별자의 차이를 설명했다.
+- [] PK 중복 입력 실패를 직접 확인했다.
+- [] 존재하지 않는 FK 참조 실패를 직접 확인했다.
+- [] FK 값이 반복될 수 있는 이유를 설명했다.
+- [] AI가 만든 테이블을 내가 먼저 검토했다.
+- [] AI 설명 중 하나를 본문과 실제 PostgreSQL 결과에 대조했다.
+- [] 개인 서비스의 테이블 후보를 3개 이상 작성했다.
+- [] 개인 서비스의 FK 후보와 미확정 정책을 기록했다.
+- [] 실제 비밀번호·API Key·민감한 접속 정보를 포함하지 않았다.
 - [ ] GUI 증거 화면 3~4장을 삽입했다. 이번 답안에는 psql의 실행 SQL과 결과를 직접 기록했다.
 
 ## 13. GitHub 제출 정보
