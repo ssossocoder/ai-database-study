@@ -29,7 +29,7 @@
 | DBeaver 버전 | DBeaver 26.1.1 |
 | Host | localhost |
 | Port | 5432 |
-| Database | ai_database_book (연결한 뒤 SQL로 다시 확인 필요) |
+| Database | ai_database_book |
 | Username | postgres |
 
 > 비밀번호는 기록하지 않는다.
@@ -52,12 +52,12 @@ DBeaver는 PostgreSQL 같은 DBMS에 연결해 SQL을 작성·실행하고 결�
 
 <!-- 아래 항목은 ai_database_book 연결을 만든 뒤 직접 확인하고 체크한다. -->
 
-- [0] PostgreSQL 연결 유형 선택
-- [0] Host 확인
-- [0] Port 확인
-- [0] Database 확인
-- [0] Username 확인
-- [0] Test Connection 성공
+- [x] PostgreSQL 연결 유형 선택
+- [x] Host 확인
+- [x] Port 확인
+- [x] Database 확인
+- [x] Username 확인
+- [x] Test Connection 성공
 
 ### 연결 성공 화면
 
@@ -91,7 +91,7 @@ SQL Editor가 현재 연결에 SELECT 문을 보내고 결과를 받을 수 있�
 
 # 3. 현재 연결 위치를 SQL로 검증
 
-다음 SQL을 ai_database_book 연결의 SQL Editor에서 실행한다.
+다음 SQL은 처음 사용한 postgres 연결의 SQL Editor에서 실행해 현재 위치를 확인했다. 이후 4번에서 ai_database_book 연결로 전환했다.
 
 ~~~sql
 SELECT version();
@@ -152,11 +152,11 @@ SELECT current_database();
 실제 결과:
 
 ~~~text
-postgres
+ai_database_book
 ~~~
 
-- [0] 결과가 ai_database_book이다.
-- [0] 다른 DB라면 올바른 연결로 전환했다.
+- [x] 결과가 ai_database_book이다.
+- [x] 다른 DB라면 올바른 연결로 전환했다.
 
 ## 4-2. 연결을 바꾼 뒤 다시 검증
 
@@ -242,9 +242,9 @@ search_path: "$user", public
 읽기 전용 여부: off
 TimeZone: Asia/Seoul
 1 + 1 결과: 2
-public 스키마 존재 여부: ok
-public USAGE 권한: ok
-public CREATE 권한: ok
+public 스키마 존재 여부: true
+public USAGE 권한: true
+public CREATE 권한: true
 ~~~
 
 ### 이 파일을 여러 번 실행해도 비교적 안전한 이유
@@ -258,7 +258,7 @@ public CREATE 권한: ok
 ~~~text
 실행 결과: Chapter 03 recommended local environment validation passed
 
-PASS / FAIL: pass
+PASS / FAIL: PASS
 ~~~
 
 실패했다면 실패 항목:
@@ -314,14 +314,14 @@ SELECT current_database();
 ~~~
 
 ## 7-3. 오류를 유형으로 분류
-- [] 서버 실행 문제
-- [] Host 문제
-- [] Port 문제
-- [] Database 문제
-- [] Username/인증 문제
-- [0] SQL 문법 문제
-- [] 권한 문제
-- [] 기타
+- [ ] 서버 실행 문제
+- [ ] Host 문제
+- [ ] Port 문제
+- [ ] Database 문제
+- [ ] Username/인증 문제
+- [x] SQL 문법 문제
+- [ ] 권한 문제
+- [ ] 기타
 
 선택 이유:
 
@@ -341,7 +341,7 @@ SELECT current_database();
 PostgreSQL과 DBeaver를 사용하는 초보자입니다.
 
 ai_database_book 연결에서 SELEC 1;을 실행했고, DBeaver에는 다음 오류가 표시되었습니다.
-[오류 메시지 핵심 문장]
+SQL Error [42601]: ERROR: syntax error at or near "SELEC" (Position: 1)
 
 저는 SELECT의 철자 오류 또는 현재 연결 위치 문제를 먼저 의심했습니다.
 데이터를 수정·삭제하지 않는 범위에서 원인을 확인하는 순서와, 수정 후 어떤 SQL로 다시 검증하면 좋은지 설명해 주세요.
@@ -352,9 +352,9 @@ ai_database_book 연결에서 SELEC 1;을 실행했고, DBeaver에는 다음 오
 
 | AI가 제안한 확인 방법 | 실제로 확인했는가? | 결과 | 수용 / 수정 / 거절 |
 | --- | --- | --- | --- |
-| 오류 위치와 SELEC 키워드의 철자를 비교한다. | 네 | 네 | 수용 |
-| SELECT 1;로 고친 뒤 다시 실행한다. | 네  | 네  | 수용 |
-| current_database()로 현재 연결 위치를 다시 확인한다. |네 | 네 | 수용 |
+| 오류 위치와 SELEC 키워드의 철자를 비교한다. | 네 | SELEC가 SELECT의 오타임을 확인했다. | 수용 |
+| SELECT 1;로 고친 뒤 다시 실행한다. | 네 | 1이 반환되었다. | 수용 |
+| current_database()로 현재 연결 위치를 다시 확인한다. | 네 | ai_database_book이 반환되었다. | 수용 |
 
 ### AI가 오류 원인을 너무 빨리 단정한 부분이 있었나요?
 
@@ -365,7 +365,7 @@ ai_database_book 연결에서 SELEC 1;을 실행했고, DBeaver에는 다음 오
 ### 오류 메시지와 실제 환경 중 무엇을 확인해서 최종 판단했나요?
 
 ~~~text
-[오류 메시지의 위치, SELEC/SELECT의 차이, SELECT 1; 재실행 결과, current_database() 결과를 보고 본인의 말로 정리]
+오류 메시지의 Position: 1과 입력한 SELEC를 비교해 SELECT의 철자 오류를 확인했다. SELECT 1;을 다시 실행해 1이 반환되는지 확인했고, current_database()가 ai_database_book을 반환해 올바른 연결에서 재검증했음을 확인했다.
 ~~~
 
 ### AI 활용에서 가장 유용했던 점
@@ -460,19 +460,19 @@ AI는 현재 서버의 실제 연결, 권한, 데이터 상태를 직접 알 수
 
 # 12. 제출 체크리스트
 
-- [0] chapter03_answer.md의 빈 필수 항목을 작성했다.
-- [0] PostgreSQL과 DBeaver의 역할 차이를 설명했다.
-- [0] current_database/current_user/current_schema/search_path를 실제로 확인했다.
-- [0] ai_database_book 연결 여부를 SQL로 검증했다.
-- [0] SQL 실행 범위 세 가지를 비교했다.
-- [0] setup_check.sql을 실행했다.
-- [0] setup_validate_local.sql 결과를 확인했다.
-- [0] 오류 원인을 먼저 스스로 추정한 뒤 AI를 사용했다.
-- [0] AI 제안을 실제 환경에서 검증했다.
-- [0] 핵심 캡처 3~4장만 골라 넣었다.
-- [0] 캡처에 비밀번호·개인정보·전체 접속 URL이 없다.
-- [0] Markdown 이미지가 GitHub 웹 화면에서 실제로 보인다.
-- [0] 최종 답안 파일을 commit/push했다.
+- [x] chapter03_answer.md의 빈 필수 항목을 작성했다.
+- [x] PostgreSQL과 DBeaver의 역할 차이를 설명했다.
+- [x] current_database/current_user/current_schema/search_path를 실제로 확인했다.
+- [x] ai_database_book 연결 여부를 SQL로 검증했다.
+- [x] SQL 실행 범위 세 가지를 비교했다.
+- [x] setup_check.sql을 실행했다.
+- [x] setup_validate_local.sql 결과를 확인했다.
+- [x] 오류 원인을 먼저 스스로 추정한 뒤 AI를 사용했다.
+- [x] AI 제안을 실제 환경에서 검증했다.
+- [x] 핵심 캡처 3~4장만 골라 넣었다.
+- [x] 캡처에 비밀번호·개인정보·전체 접속 URL이 없다.
+- [ ] Markdown 이미지가 GitHub 웹 화면에서 실제로 보인다.
+- [ ] 최종 답안 파일을 commit/push했다.
 
 ---
 
