@@ -52,12 +52,12 @@ DBeaver는 PostgreSQL 같은 DBMS에 연결해 SQL을 작성·실행하고 결�
 
 <!-- 아래 항목은 ai_database_book 연결을 만든 뒤 직접 확인하고 체크한다. -->
 
-- [x] PostgreSQL 연결 유형 선택
-- [x] Host 확인
-- [x] Port 확인
-- [x] Database 확인
-- [x] Username 확인
-- [x] Test Connection 성공
+- [0] PostgreSQL 연결 유형 선택
+- [0] Host 확인
+- [0] Port 확인
+- [0] Database 확인
+- [0] Username 확인
+- [0] Test Connection 성공
 
 ### 연결 성공 화면
 
@@ -155,8 +155,8 @@ SELECT current_database();
 ai_database_book
 ~~~
 
-- [x] 결과가 ai_database_book이다.
-- [x] 다른 DB라면 올바른 연결로 전환했다.
+- [0] 결과가 ai_database_book이다.
+- [0] 다른 DB라면 올바른 연결로 전환했다.
 
 ## 4-2. 연결을 바꾼 뒤 다시 검증
 
@@ -319,7 +319,7 @@ SELECT current_database();
 - [ ] Port 문제
 - [ ] Database 문제
 - [ ] Username/인증 문제
-- [x] SQL 문법 문제
+- [0] SQL 문법 문제
 - [ ] 권한 문제
 - [ ] 기타
 
@@ -334,8 +334,6 @@ SELECT current_database();
 # 8. AI를 오류 분석 보조 도구로 사용
 
 ## 8-1. AI에게 전달한 프롬프트
-
-<!-- 실제 DBeaver 오류 메시지를 확인한 뒤 대괄호 부분을 바꾸고, 비밀번호·전체 URL은 넣지 않는다. -->
 
 ~~~text
 PostgreSQL과 DBeaver를 사용하는 초보자입니다.
@@ -460,19 +458,19 @@ AI는 현재 서버의 실제 연결, 권한, 데이터 상태를 직접 알 수
 
 # 12. 제출 체크리스트
 
-- [x] chapter03_answer.md의 빈 필수 항목을 작성했다.
-- [x] PostgreSQL과 DBeaver의 역할 차이를 설명했다.
-- [x] current_database/current_user/current_schema/search_path를 실제로 확인했다.
-- [x] ai_database_book 연결 여부를 SQL로 검증했다.
-- [x] SQL 실행 범위 세 가지를 비교했다.
-- [x] setup_check.sql을 실행했다.
-- [x] setup_validate_local.sql 결과를 확인했다.
-- [x] 오류 원인을 먼저 스스로 추정한 뒤 AI를 사용했다.
-- [x] AI 제안을 실제 환경에서 검증했다.
-- [x] 핵심 캡처 3~4장만 골라 넣었다.
-- [x] 캡처에 비밀번호·개인정보·전체 접속 URL이 없다.
-- [x] Markdown 이미지가 GitHub 웹 화면에서 실제로 보인다.
-- [x] 최종 답안 파일을 commit/push했다.
+- [0] chapter03_answer.md의 빈 필수 항목을 작성했다.
+- [0] PostgreSQL과 DBeaver의 역할 차이를 설명했다.
+- [0] current_database/current_user/current_schema/search_path를 실제로 확인했다.
+- [0] ai_database_book 연결 여부를 SQL로 검증했다.
+- [0] SQL 실행 범위 세 가지를 비교했다.
+- [0] setup_check.sql을 실행했다.
+- [0] setup_validate_local.sql 결과를 확인했다.
+- [0] 오류 원인을 먼저 스스로 추정한 뒤 AI를 사용했다.
+- [0] AI 제안을 실제 환경에서 검증했다.
+- [0] 핵심 캡처 3~4장만 골라 넣었다.
+- [0] 캡처에 비밀번호·개인정보·전체 접속 URL이 없다.
+- [0] Markdown 이미지가 GitHub 웹 화면에서 실제로 보인다.
+- [0] 최종 답안 파일을 commit/push했다.
 
 ---
 
