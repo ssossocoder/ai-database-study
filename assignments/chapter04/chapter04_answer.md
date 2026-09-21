@@ -13,14 +13,14 @@
 
 ## 내가 직접 해야 하는 체크리스트
 
-- [ ] `ai_database_book` 연결에서 [`00_preflight.sql`](../../code/chapter04/00_preflight.sql)을 실행했다.
-- [ ] 현재 DB, 사용자, 스키마, `search_path`, 읽기 전용 여부의 **실제 결과**를 아래 표에 기록했다.
-- [ ] `01_create_students.sql`과 `02_insert_students.sql`을 각각 한 번만 실행하고 결과를 확인했다.
-- [ ] 모든 SELECT의 예상 행 수를 먼저 적고 실제 행 수를 비교했다.
-- [ ] UPDATE/DELETE 전 대상 SELECT가 정확히 1행인지 확인했다.
-- [ ] 실패해야 하는 UNIQUE/NOT NULL 실험을 각각 한 문장씩 실행하고 오류 핵심 문구를 기록했다.
-- [ ] 지정된 화면을 `images/`에 저장하고 아래 이미지 링크를 실제 파일명으로 바꿨다.
-- [ ] 13절 성찰을 나의 실행 경험과 말로 수정했다.
+- [x] `ai_database_book` 연결에서 [`00_preflight.sql`](../../code/chapter04/00_preflight.sql)을 실행했다.
+- [x] 현재 DB, 사용자, 스키마, `search_path`, 읽기 전용 여부의 **실제 결과**를 아래 표에 기록했다.
+- [x] `01_create_students.sql`과 `02_insert_students.sql`을 각각 한 번만 실행하고 결과를 확인했다.
+- [x] 모든 SELECT의 예상 행 수를 먼저 적고 실제 행 수를 비교했다.
+- [x] UPDATE/DELETE 전 대상 SELECT가 정확히 1행인지 확인했다.
+- [x] 실패해야 하는 UNIQUE/NOT NULL 실험을 각각 한 문장씩 실행하고 오류 핵심 문구를 기록했다.
+- [x] 지정된 화면을 `images/`에 저장하고 아래 이미지 링크를 실제 파일명으로 바꿨다.
+- [x] 13절 성찰을 나의 실행 경험과 말로 수정했다.
 
 실행 순서와 상태 주의점은 [`README.md`](./README.md)에 정리했다. SQL 파일은 [`code/chapter04`](../../code/chapter04)에 있다.
 
@@ -32,16 +32,16 @@
 
 | 확인 항목 | 실제 결과 | 의미 |
 | --- | --- | --- |
-| `current_database()` | `[직접 실행 후 기록: ai_database_book인지 확인]` | 현재 SQL 세션이 실제로 연결된 데이터베이스이다. |
-| `current_user` | `[직접 실행 후 기록]` | PostgreSQL이 이 세션의 권한을 판단할 때 쓰는 사용자이다. |
-| `current_schema()` | `[직접 실행 후 기록]` | 스키마 이름을 생략했을 때 현재 우선 사용하는 스키마이다. |
-| `search_path` | `[직접 실행 후 기록]` | 스키마를 생략한 객체 이름을 찾는 순서이다. |
-| `transaction_read_only` | `[직접 실행 후 기록: off인지 확인]` | 현재 트랜잭션이 변경을 허용하는지 나타낸다. |
+| `current_database()` | ai_database_book | 현재 SQL 세션이 실제로 연결된 데이터베이스이다. |
+| `current_user` | postgres | PostgreSQL이 이 세션의 권한을 판단할 때 쓰는 사용자이다. |
+| `current_schema()` | public | 스키마 이름을 생략했을 때 현재 우선 사용하는 스키마이다. |
+| `search_path` | "$user", public| 스키마를 생략한 객체 이름을 찾는 순서이다. |
+| `transaction_read_only` | off | 현재 트랜잭션이 변경을 허용하는지 나타낸다. |
 
-- [ ] 현재 DB가 `ai_database_book`이다.
-- [ ] `transaction_read_only`가 `off`여서 읽기 전용 연결이 아님을 확인했다.
-- [ ] 실행할 SQL 블록만 선택했는지 확인했다.
-- [ ] DBeaver의 Auto-commit 상태를 화면에서 확인했다.
+- [x] 현재 DB가 `ai_database_book`이다.
+- [x] `transaction_read_only`가 `off`여서 읽기 전용 연결이 아님을 확인했다.
+- [x] 실행할 SQL 블록만 선택했는지 확인했다.
+- [x] DBeaver의 Auto-commit 상태를 화면에서 확인했다.
 
 ### 변경 SQL을 실행하기 전에 현재 DB와 실행 범위를 확인해야 하는 이유
 
@@ -70,8 +70,8 @@ SQL 문법이 맞아도 다른 데이터베이스나 다른 테이블에서 실�
 ## 2-2. 실행 후 확인
 
 ```text
-테이블 생성 성공 여부: [직접 실행 후 기록]
-실제 행 수: [직접 실행 후 기록 — 생성 직후 기대값은 0]
+테이블 생성 성공 여부: 성공
+실제 행 수: 0
 DBeaver에서 확인한 위치: ai_database_book → Schemas → public → Tables → students
 ```
 
@@ -94,9 +94,7 @@ id는 데이터베이스가 행을 구분하기 위한 내부 식별자다. 중�
 
 ### 증거 화면
 
-권장 경로: `assignments/chapter04/images/step02_table.png`
-
-<!-- ![students 테이블 구조](./images/step02_table.png) -->
+![students 테이블 구조](./images/step02_table.png)
 
 ---
 
@@ -115,18 +113,17 @@ id는 데이터베이스가 행을 구분하기 위한 내부 식별자다. 중�
 ## 3-2. 기대 결과와 실제 결과
 
 ```text
-실제 행 수: [직접 실행 후 기록 — 기대값은 6]
-이준호 grade: [직접 실행 후 기록 — 기대값은 3]
-박서연 존재 여부: [직접 실행 후 기록 — 기대값은 존재]
-윤서진 major: [직접 실행 후 기록 — 기대값은 NULL]
-윤서진 grade: [직접 실행 후 기록 — 기대값은 NULL]
+실제 행 수: 6(동일)
+이준호 grade: 3(동일)
+박서연 존재 여부: 존재(동일)
+윤서진 major: NULL(동일)
+윤서진 grade: NULL(동일)
 ```
 
 ### 예상과 실제 비교
 
 ```text
-예상과 실제가 일치했는가: [직접 실행 후 기록]
-다르다면 이유: 예를 들어 INSERT를 이미 실행했거나, 다른 DB/기존 students 테이블에서 실행했는지 먼저 확인한다.
+예상과 실제가 일치했는가: 동일하다.
 ```
 
 ### `created_at` 값이 여러 행에서 같을 수 있는 이유
@@ -145,14 +142,14 @@ id는 데이터베이스가 행을 구분하기 위한 내부 식별자다. 중�
 
 | 번호 | 조회 문제 | 예상 행 수 | 실제 행 수 | 일치? | 다르면 이유 |
 | ---: | --- | ---: | --- | --- | --- |
-| 1 | 전체 학생 | 6 | `[직접 실행 후]` | `[직접 확인]` | `[필요 시 기록]` |
-| 2 | 이름·이메일만 조회 | 6 | `[직접 실행 후]` | `[직접 확인]` | `[필요 시 기록]` |
-| 3 | 컴퓨터공학 전공 | 2 | `[직접 실행 후]` | `[직접 확인]` | `[필요 시 기록]` |
-| 4 | 3학년 이상 | 2 | `[직접 실행 후]` | `[직접 확인]` | `[필요 시 기록]` |
-| 5 | 컴퓨터공학·데이터사이언스 중 하나 | 3 | `[직접 실행 후]` | `[직접 확인]` | `[필요 시 기록]` |
-| 6 | `grade IS NULL` | 1 | `[직접 실행 후]` | `[직접 확인]` | `[필요 시 기록]` |
-| 7 | 전공 `DISTINCT` (NULL 포함) | 5 | `[직접 실행 후]` | `[직접 확인]` | `[필요 시 기록]` |
-| 8 | `id`순 정렬 후 상위 3명 | 3 | `[직접 실행 후]` | `[직접 확인]` | `[필요 시 기록]` |
+| 1 | 전체 학생 | 6 | 6 | 일치 |
+| 2 | 이름·이메일만 조회 | 6 | 6 | 일치 |
+| 3 | 컴퓨터공학 전공 | 2 | 2 | 일치 |
+| 4 | 3학년 이상 | 2 | 2 | 일치 |
+| 5 | 컴퓨터공학·데이터사이언스 중 하나 | 3 | 3 | 일치 |
+| 6 | `grade IS NULL` | 1 | 1 | 일치 |
+| 7 | 전공 `DISTINCT` (NULL 포함) | 5 | 5 | 일치 |
+| 8 | `id`순 정렬 후 상위 3명 | 3 | 3 | 일치 |
 
 ## 4-1. 직접 작성 SQL 2개 초안
 
@@ -167,7 +164,7 @@ ORDER BY id;
 ```text
 이 SQL의 한 행 의미: 전공이 아직 NULL인 학생 한 명
 예상 행 수: 1
-실제 행 수: [직접 실행 후 기록]
+실제 행 수: 1
 ```
 
 ```sql
@@ -183,7 +180,7 @@ ORDER BY major;
 ```text
 이 SQL의 한 행 의미: 학생이 두 명 이상인 전공 한 개와 해당 학생 수
 예상 행 수: 1 (컴퓨터공학, 2명)
-실제 행 수: [직접 실행 후 기록]
+실제 행 수: 1
 ```
 
 ## 4-2. `= NULL` 대신 `IS NULL`을 사용하는 이유
@@ -206,9 +203,7 @@ NULL은 값을 모른다거나 값이 없다는 상태이므로 일반 값과 `=
 
 ### 증거 화면
 
-권장 경로: `assignments/chapter04/images/step04_select.png`
-
-<!-- ![SELECT 핵심 결과](./images/step04_select.png) -->
+![SELECT 핵심 결과](./images/step04_select.png)
 
 ---
 
@@ -248,9 +243,9 @@ RETURNING id, name, email, major, grade;
 ## 5-3. 실제 결과
 
 ```text
-RETURNING 또는 확인 SELECT 결과: [직접 실행 후 기록]
-실제 전체 행 수: [직접 실행 후 기록]
-예상과 일치 여부: [직접 실행 후 기록]
+RETURNING 또는 확인 SELECT 결과: 가상하린, 가상민준 2행 반환
+실제 전체 행 수: 8
+예상과 일치 여부: 일치
 ```
 
 ### 내가 일부 값을 NULL로 둔 이유
@@ -275,7 +270,7 @@ WHERE email = 'virtual.harin@example.test';
 
 ```text
 예상 대상 행 수: 1
-실제 대상 행 수: [직접 실행 후 기록]
+실제 대상 행 수: 1
 ```
 
 ## 6-2. UPDATE
@@ -289,8 +284,8 @@ RETURNING id, name, email, major, grade;
 
 ```text
 예상 영향 행 수: 1
-실제 영향 행 수: [직접 실행 후 기록]
-RETURNING 결과: [직접 실행 후 기록]
+실제 영향 행 수: 1
+RETURNING 결과: 7 가상하린	virtual.harin@example.test	UX디자인	3
 ```
 
 ## 6-3. UPDATE 후 재조회
@@ -309,9 +304,7 @@ WHERE가 없으면 public.students의 모든 행이 UPDATE 대상이 된다. 한
 
 ### 증거 화면
 
-권장 경로: `assignments/chapter04/images/step06_update.png`
-
-<!-- ![UPDATE 전후 결과](./images/step06_update.png) -->
+![UPDATE 전후 결과](./images/step06_update.png)
 
 ---
 
@@ -329,7 +322,7 @@ WHERE email = 'virtual.minjun@example.test';
 
 ```text
 예상 대상 행 수: 1
-실제 대상 행 수: [직접 실행 후 기록]
+실제 대상 행 수: 1
 ```
 
 ## 7-2. DELETE
@@ -342,8 +335,8 @@ RETURNING id, name, email;
 
 ```text
 예상 영향 행 수: 1
-실제 영향 행 수: [직접 실행 후 기록]
-RETURNING 결과: [직접 실행 후 기록]
+실제 영향 행 수: 1
+RETURNING 결과: 12	가상민준	virtual.minjun@example.test
 ```
 
 ## 7-3. 삭제 후 재조회
@@ -355,7 +348,7 @@ WHERE email = 'virtual.minjun@example.test';
 ```
 
 ```text
-삭제 후 같은 조건의 SELECT 결과 행 수: [직접 실행 후 기록 — 기대값은 0]
+삭제 후 같은 조건의 SELECT 결과 행 수: 0
 ```
 
 ### `DELETE` 성공 메시지만 보고 끝내지 않고 다시 SELECT해야 하는 이유
@@ -373,17 +366,17 @@ WHERE email = 'virtual.minjun@example.test';
 이 절은 **01·02 실행 직후의 6명 시작 상태**에서 따로 수행한다. 5~7절의 가상 학생 실습 상태가 남아 있으면 기대 행 수가 달라진다.
 
 ```text
-최종 학생 수: [직접 실행 후 기록 — 기대값은 5]
-이준호 grade: [직접 실행 후 기록 — 기대값은 4]
-박서연 존재 여부: [직접 실행 후 기록 — 기대값은 0행]
+최종 학생 수: 5
+이준호 grade: 4
+박서연 존재 여부: 0
 ```
 
 ### 내 실제 결과가 기준과 다르다면 원인
 
 ```text
-[직접 실행 후 기록]
 
 가능한 원인: INSERT를 중복 실행했거나, 5~7절의 가상 학생이 남아 있거나, UPDATE/DELETE의 WHERE 대상이 예시와 다르거나, 다른 데이터베이스에서 실행했을 수 있다. 먼저 current_database(), 전체 행 수, 각 이메일의 존재 여부를 다시 확인한다.
+
 ```
 
 ---
@@ -400,10 +393,10 @@ VALUES ('중복테스트', 'minji.kim@example.test', '테스트전공', 1);
 ```
 
 ```text
-오류 메시지 핵심 단서: [직접 실행 후 기록 — 예: duplicate key, students_email_key]
+오류 메시지 핵심 단서: duplicate key value violates unique constraint "students_email_key"
 왜 실패해야 맞는가: 이미 김민지가 사용하는 이메일을 다른 학생에게 다시 저장하려 했기 때문이다.
 어떤 규칙이 작동했는가: email의 UNIQUE 제약조건이다.
-실패 후 기존 데이터가 어떻게 유지되었는가: [직접 SELECT로 확인한 결과를 기록]
+실패 후 기존 데이터가 어떻게 유지되었는가: 1	김민지	minji.kim@example.test
 ```
 
 ## 9-2. 이름 `NULL` 입력 `NOT NULL` 오류
@@ -414,7 +407,7 @@ VALUES (NULL, 'null-name-test@example.test', '테스트전공', 1);
 ```
 
 ```text
-오류 메시지 핵심 단서: [직접 실행 후 기록 — 예: null value, column "name"]
+오류 메시지 핵심 단서:  null value in column "name" of relation "students" violates not-null constraint
 왜 실패해야 맞는가: name은 한 학생 행에 반드시 있어야 한다고 정한 필수 값이기 때문이다.
 어떤 규칙이 작동했는가: name의 NOT NULL 제약조건이다.
 ```
@@ -427,9 +420,7 @@ identity/sequence 값은 INSERT 시도 과정에서 미리 할당될 수 있고,
 
 ### 증거 화면
 
-권장 경로: `assignments/chapter04/images/step09_constraint_error.png`
-
-<!-- ![UNIQUE 및 NOT NULL 오류](./images/step09_constraint_error.png) -->
+![UNIQUE 및 NOT NULL 오류](./images/step09_constraint_error.png)
 
 ---
 
@@ -440,12 +431,12 @@ identity/sequence 값은 INSERT 시도 과정에서 미리 할당될 수 있고,
 이 결과의 기대값은 8절처럼 초기 6명 상태에서 `04_update_delete_students.sql`만 실행한 경우다.
 
 ```text
-현재 전체 학생 수: [직접 실행 후 기록 — 기대값은 5]
-grade NULL 개수: [직접 실행 후 기록 — 기대값은 1]
-major NULL 개수: [직접 실행 후 기록 — 기대값은 1]
-이준호 grade: [직접 실행 후 기록 — 기대값은 4]
-박서연 존재 여부: [직접 실행 후 기록 — 기대값은 0]
-현재 데이터 상태에서 예상과 다른 부분: [직접 실행 후 기록]
+현재 전체 학생 수: 5
+grade NULL 개수: 1
+major NULL 개수: 1
+이준호 grade: 4
+박서연 존재 여부: 0
+현재 데이터 상태에서 예상과 다른 부분: 없다
 ```
 
 ### 검증 SQL을 따로 두면 좋은 이유
@@ -481,14 +472,17 @@ PostgreSQL 초보자입니다. 아래 UPDATE가 한 명의 가상 학생만 수�
 
 | AI 제안 | 수용 / 수정 / 거절 | 실제 검증 결과 | 나의 이유 |
 | --- | --- | --- | --- |
-| `WHERE email = ...`와 같은 조건으로 먼저 SELECT한다. | `[직접 결정]` | `[직접 실행 후]` | `[직접 작성]` |
-| UPDATE의 영향 행 수가 1인지 확인한다. | `[직접 결정]` | `[직접 실행 후]` | `[직접 작성]` |
-| UPDATE 뒤 같은 조건으로 다시 SELECT한다. | `[직접 결정]` | `[직접 실행 후]` | `[직접 작성]` |
+
+| `WHERE email = ...`와 같은 조건으로 먼저 SELECT한다. | 수용 | SELECT 결과 수정 대상이 1행임을 확인했다. | UPDATE 전에 수정될 대상을 미리 확인하면 잘못된 행을 수정하는 것을 방지할 수 있기 때문이다. |
+| UPDATE의 영향 행 수가 1인지 확인한다. | 수용 | UPDATE 실행 결과 1행이 영향을 받은 것을 확인했다. | 예상한 한 명의 학생만 실제로 수정되었는지 확인할 수 있기 때문이다. |
+| UPDATE 뒤 같은 조건으로 다시 SELECT한다. | 수용 | 다시 SELECT한 결과 해당 학생의 `grade`가 3으로 변경된 것을 확인했다. | UPDATE 결과가 의도한 값으로 반영되었는지 최종 확인하기 위해서다. |
 
 ### AI가 예상한 영향 행 수와 실제 결과가 같았나요?
 
 ```text
-[직접 실행 후 기록]
+AI는 UPDATE의 예상 영향 행 수를 1행으로 제안했다.
+
+직접 실행한 결과 실제로도 1행이 수정되어 예상과 실제 결과가 같았다.
 ```
 
 ### AI 답변을 실행 전에 검토해야 하는 이유
@@ -563,4 +557,37 @@ CREATE TABLE saju_note.subjects (
 4. UNIQUE 또는 NOT NULL 오류를 '보호 장치가 정상 동작한 결과'라고 볼 수 있는 이유는 중복 이메일이나 이름 없는 학생처럼 정한 규칙에 맞지 않는 데이터를 테이블에 저장하지 못하게 막았기 때문이다.
 
 5. AI가 SQL을 만들어 주더라도 내가 반드시 확인해야 하는 것은 현재 연결한 DB, SQL의 대상 테이블과 WHERE 조건, 예상 영향 행 수, 실제 실행 결과이다.
+```
+---
+
+# 14. 제출 체크리스트
+
+- [x] `chapter04_answer.md`를 본인 저장소에 만들었다.
+- [x] 현재 DB와 실행 환경을 확인했다.
+- [x] `public.students`를 생성했다.
+- [x] 샘플 6명 입력 결과를 검증했다.
+- [x] SELECT 문제에서 실행 전 예상 행 수를 작성했다.
+- [x] 가상 학생 2명을 추가했다.
+- [x] UPDATE 전후를 SELECT로 확인했다.
+- [x] DELETE 전후를 SELECT로 확인했다.
+- [x] UNIQUE 오류를 관찰했다.
+- [x] NOT NULL 오류를 관찰했다.
+- [x] `verify_students.sql`로 상태를 확인했다.
+- [x] AI 제안을 실제 SQL 결과와 비교했다.
+- [x] 개인 서비스 테이블 하나를 확장 설계했다.
+- [x] 핵심 캡처는 3~4장 정도로 제한했다.
+- [x] 비밀번호·개인정보가 캡처에 없다.
+- [x] Markdown 이미지가 GitHub 웹 화면에서 정상 표시된다.
+- [x] commit/push를 완료했다.
+
+---
+
+# 15. LMS 제출 URL
+
+
+내 제출 URL:
+
+```text
+https://github.com/ssossocoder/ai-database-study/blob/main/assignments/chapter04/chapter04_answer.md
+
 ```
