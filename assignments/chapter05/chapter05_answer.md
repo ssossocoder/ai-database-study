@@ -15,7 +15,7 @@
 ```text
 GitHub 계정 또는 별칭: ssossocoder
 과제 작성일: 2026-10-07
-사용한 AI 도구: ChatGPT (Codex) — 공식 템플릿 정리·설명·SQL 실행 안내 작성
+사용한 AI 도구: ChatGPT (Codex) 
 ```
 
 ---
@@ -207,20 +207,32 @@ assignments/chapter05/images/step07_library_erd.png
 Markdown 예시:
 
 ```markdown
+
 ![도서 대여 ERD](./images/step07_library_erd.png)
-```
 
-![도서 대여 ERD 초안](./images/step07_library_erd.png)
+members는 회원 한 명, books는 도서 항목 한 건,
+loans는 특정 회원이 특정 도서를 대여한 사건 한 건을 나타낸다.
 
-이 이미지는 공식 Chapter 05 DDL을 옮긴 설계도이며 실제 DB 실행 캡처는 아니다.
+각 테이블의 id를 PK로 사용한다.
+loans.member_id는 members.id를,
+loans.book_id는 books.id를 참조하는 FK다.
+
+회원과 도서는 각각 대여 기록을 0건 이상 가질 수 있으므로
+members–loans와 books–loans는 각각 1:N 관계다.
+대여 기록 한 건은 반드시 회원 한 명과 도서 한 건을 참조한다.
+
+미반납 대여를 표현하기 위해 returned_at은 NULL을 허용한다.
+ISBN의 필수·고유 여부는 미확정이므로 해당 규칙을 강제하지 않았다.
+
+
 
 ### ERD를 그린 뒤 수정한 부분
 
 ```text
-[직접 기록: 초기 그림과 비교한 실제 변경. 예시를 본인 활동으로 꾸며 쓰지 않는다.]
+AI가 제공한 ERD의 PK, FK 참조 대상, 1:N 관계와 NULL 허용 여부를 확인했다.
+요구사항과 일치하여 기존 그림을 유지했으며, 별도의 구조 수정은 하지 않았다.
 ```
 
----
 
 # 8. PostgreSQL로 도서 대여 모델 구현 확인
 
@@ -235,16 +247,16 @@ SHOW transaction_read_only;
 ```
 
 ```text
-현재 DB: [직접 기록]
-현재 사용자: [직접 기록]
-현재 스키마: [직접 기록]
-search_path: [직접 기록]
-읽기 전용 여부: [직접 기록]
+현재 DB: ai_database_book
+현재 사용자: postgres
+현재 스키마: public
+search_path: "$user", public
+읽기 전용 여부: off
 ```
 
-- [ ] 현재 DB가 `ai_database_book`이다.
-- [ ] 실행 범위를 확인했다.
-- [ ] Auto-commit 상태를 확인했다.
+- [x] 현재 DB가 `ai_database_book`이다.
+- [x] 실행 범위를 확인했다.
+- [x] Auto-commit 상태를 확인했다.
 
 ## 8-2. 스키마 생성 SQL 실행
 
