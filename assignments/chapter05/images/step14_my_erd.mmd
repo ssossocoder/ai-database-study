@@ -1,0 +1,54 @@
+%% 사주 기록 노트 설계 후보. 미확정 정책은 본문 참조. 실제 실행 결과가 아님.
+erDiagram
+    subjects {
+        bigint id PK
+        text subject_code UK "Ch04 candidate"
+        text nickname
+        text relationship_label
+        text memo
+        timestamptz created_at
+    }
+    birth_info {
+        bigint birth_info_id PK
+        bigint subject_id FK
+        date birth_date
+        time birth_time "unknown policy pending"
+        text time_accuracy
+        text calendar_type
+        boolean is_leap_month
+        text birth_region
+        text time_zone
+        timestamptz recorded_at
+    }
+    calculation_results {
+        bigint calculation_id PK
+        bigint birth_info_id FK
+        text rule_version
+        timestamptz calculated_at
+        text year_pillar
+        text month_pillar
+        text day_pillar
+        text hour_pillar "unknown-time policy pending"
+    }
+    interpretations {
+        bigint interpretation_id PK
+        bigint calculation_id FK "requiredness pending"
+        text author_type
+        text content
+        timestamptz created_at
+        text ai_model "AI-only candidate"
+        text ai_prompt "AI-only candidate"
+    }
+    topics {
+        bigint topic_id PK
+        text topic_name "uniqueness pending"
+    }
+    interpretation_topics {
+        bigint interpretation_id PK, FK
+        bigint topic_id PK, FK
+    }
+    subjects ||--o{ birth_info : "has input versions"
+    birth_info ||--o{ calculation_results : "used for calculation"
+    calculation_results o|--o{ interpretations : "basis policy pending"
+    interpretations ||--o{ interpretation_topics : "has topics"
+    topics ||--o{ interpretation_topics : "used by interpretations"

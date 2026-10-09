@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1550" height="1430" viewBox="0 0 1550 1430" role="img" aria-label="사주 기록 노트 Chapter 06 설계 ERD">
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<style>text{font-family:Arial,Apple SD Gothic Neo,sans-serif;fill:#20364b}.edge{fill:none;stroke:#51708d;stroke-width:3}.label{font-size:13px}</style>
+<text x="40" y="47" font-size="30" font-weight="bold">사주 기록 노트 · Chapter 06 개선 설계</text>
+<text x="40" y="82" font-size="19">Chapter 01~04의 개인 서비스에서 이어지는 설계 후보 · SQL 실행 화면과 별개</text>
+<path class="edge" d="M470 260 H555"/><text class="label" x="490" y="244">1 : 0..N</text>
+<path class="edge" d="M985 260 H1070"/><text class="label" x="999" y="244">1 : 0..N</text>
+<path class="edge" d="M1285 420 V550"/><text class="label" x="1300" y="480">0..1 : 0..N</text>
+<path class="edge" d="M1070 690 H985"/><text class="label" x="997" y="674">0..N : 1</text>
+<path class="edge" d="M470 690 H555"/><text class="label" x="485" y="674">1 : 0..N</text>
+<path class="edge" d="M1285 850 V1010"/><text class="label" x="1300" y="938">1 : 0..1</text>
+<rect x="40" y="120" width="430" height="300" rx="12" fill="white" stroke="#aabac9" stroke-width="2"/>
+<path d="M52 120 H458 Q470 120 470 132 V173 H40 V132 Q40 120 52 120" fill="#244b6c"/>
+<text x="57" y="155" font-size="23" style="fill:white" font-weight="bold">subjects</text>
+<text x="58" y="206" font-size="18">PK id</text>
+<text x="58" y="238" font-size="18">UK candidate subject_code</text>
+<text x="58" y="270" font-size="18">nickname (not unique)</text>
+<text x="58" y="302" font-size="18">relationship_label / memo</text>
+<text x="58" y="334" font-size="18">created_at</text>
+<rect x="555" y="120" width="430" height="300" rx="12" fill="white" stroke="#aabac9" stroke-width="2"/>
+<path d="M567 120 H973 Q985 120 985 132 V173 H555 V132 Q555 120 567 120" fill="#244b6c"/>
+<text x="572" y="155" font-size="23" style="fill:white" font-weight="bold">birth_info</text>
+<text x="573" y="206" font-size="18">PK birth_info_id</text>
+<text x="573" y="238" font-size="18">FK subject_id → subjects.id</text>
+<text x="573" y="270" font-size="18">birth_date / birth_time</text>
+<text x="573" y="302" font-size="18">time_accuracy / calendar_type</text>
+<text x="573" y="334" font-size="18">is_leap_month / birth_region</text>
+<text x="573" y="366" font-size="18">time_zone / recorded_at</text>
+<rect x="1070" y="120" width="430" height="300" rx="12" fill="white" stroke="#aabac9" stroke-width="2"/>
+<path d="M1082 120 H1488 Q1500 120 1500 132 V173 H1070 V132 Q1070 120 1082 120" fill="#244b6c"/>
+<text x="1087" y="155" font-size="23" style="fill:white" font-weight="bold">calculation_results</text>
+<text x="1088" y="206" font-size="18">PK calculation_id</text>
+<text x="1088" y="238" font-size="18">FK birth_info_id</text>
+<text x="1088" y="270" font-size="18">rule_version / calculated_at</text>
+<text x="1088" y="302" font-size="18">year_pillar / month_pillar</text>
+<text x="1088" y="334" font-size="18">day_pillar / hour_pillar</text>
+<rect x="40" y="550" width="430" height="260" rx="12" fill="white" stroke="#aabac9" stroke-width="2"/>
+<path d="M52 550 H458 Q470 550 470 562 V603 H40 V562 Q40 550 52 550" fill="#244b6c"/>
+<text x="57" y="585" font-size="23" style="fill:white" font-weight="bold">topics</text>
+<text x="58" y="636" font-size="18">PK topic_id</text>
+<text x="58" y="668" font-size="18">topic_name</text>
+<text x="58" y="700" font-size="18">name uniqueness: pending</text>
+<rect x="555" y="550" width="430" height="260" rx="12" fill="white" stroke="#aabac9" stroke-width="2"/>
+<path d="M567 550 H973 Q985 550 985 562 V603 H555 V562 Q555 550 567 550" fill="#244b6c"/>
+<text x="572" y="585" font-size="23" style="fill:white" font-weight="bold">interpretation_topics</text>
+<text x="573" y="636" font-size="18">PK + FK interpretation_id</text>
+<text x="573" y="668" font-size="18">PK + FK topic_id</text>
+<text x="573" y="700" font-size="18">one interpretation-topic pair</text>
+<rect x="1070" y="550" width="430" height="300" rx="12" fill="white" stroke="#aabac9" stroke-width="2"/>
+<path d="M1082 550 H1488 Q1500 550 1500 562 V603 H1070 V562 Q1070 550 1082 550" fill="#244b6c"/>
+<text x="1087" y="585" font-size="23" style="fill:white" font-weight="bold">interpretations</text>
+<text x="1088" y="636" font-size="18">PK interpretation_id</text>
+<text x="1088" y="668" font-size="18">FK calculation_id (policy pending)</text>
+<text x="1088" y="700" font-size="18">author_type / content / created_at</text>
+<rect x="1070" y="1010" width="430" height="240" rx="12" fill="white" stroke="#aabac9" stroke-width="2"/>
+<path d="M1082 1010 H1488 Q1500 1010 1500 1022 V1063 H1070 V1022 Q1070 1010 1082 1010" fill="#244b6c"/>
+<text x="1087" y="1045" font-size="23" style="fill:white" font-weight="bold">ai_generation_meta</text>
+<text x="1088" y="1096" font-size="18">PK + FK interpretation_id</text>
+<text x="1088" y="1128" font-size="18">model_name / prompt_text</text>
+<text x="1088" y="1160" font-size="18">generated_at</text>
+<text x="1088" y="1192" font-size="18">0..1 per interpretation (candidate)</text>
+<text x="40" y="1320" font-size="20">관계 후보: 출생 정보 버전 → 계산 결과 → 해석, 해석 ↔ 주제는 연결 테이블로 표현</text>
+<text x="40" y="1350" font-size="20">미확정: 모르는 출생 시간, 계산 없이 쓴 해석, 주제 이름 고유성, 현재 버전 선택, 삭제·보관 정책</text>
+<text x="40" y="1380" font-size="20">개선안: AI 생성 근거를 별도 후보로 분리. 반복 생성 실행과 조건부 필수 규칙은 후속 확인.</text>
+</svg>
