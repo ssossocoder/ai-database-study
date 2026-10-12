@@ -1,6 +1,6 @@
 # Chapter 07 확장 실습 답안 — 온라인 강의 수강신청 DB 완성하기
 
-> **작성 상태:** 공식 템플릿에 맞춘 답안 초안이다. 설명·예상값·개인 프로젝트 설계를 작성했으며, **스키마 생성과 변경 결과·캡처는 확인했다. 나머지 실제 결과와 캡처는 확인한 항목부터 반영한다.** `[실행 후 기록]`은 실습 후 채운다. 개인 프로젝트 결정과 성찰, AI 제안 판단도 제출 전에 본인의 판단으로 확인한다.
+> **작성 상태:** 스키마 생성, Seed 기준 상태, 변경 결과, 경계·실패 테스트와 실패 후 공식 Validation 재검증을 확인했다. 실행 캡처 4장을 첨부했다. Seed는 간소화 입력 SQL을 사용해 별도 seed passed 메시지는 출력하지 않았다. 초기화 재현성 실험은 수행하지 않았다. 개인 프로젝트 설계·AI 판단·성찰은 제출 전 본인이 최종 확인한다.
 
 공식 자료: [답안 템플릿](https://github.com/GilbertMoon/ai-database-book/blob/main/assignments/chapter07/chapter07_answer_template.md), [프로젝트 결정 기록](../../code/chapter07/PROJECT_DECISIONS.md), [실행 안내](../../code/chapter07/README.md). SQL은 공식 저장소의 Chapter 07 파일을 가져왔으며 실행 결과를 대신하지 않는다.
 
@@ -27,17 +27,17 @@ SELECT to_regnamespace('course_project');
 
 | 확인 항목 | 실제 결과 | 의미 |
 | --- | --- | --- |
-| current_database() | [실행 후 기록; 기대 ai_database_book] | SQL을 실행하는 DB |
-| current_user | [실행 후 기록] | 현재 권한을 가진 역할 |
-| current_schema() | [실행 후 기록] | 스키마를 생략했을 때 우선 사용하는 스키마 |
-| search_path | [실행 후 기록] | 스키마 이름 탐색 순서 |
-| transaction_read_only | [실행 후 기록; 기대 off] | 쓰기 가능한 연결인지 확인 |
-| to_regnamespace('course_project') | [실행 후 기록; 최초 기대 NULL] | 기존 프로젝트 존재 여부 |
+| current_database() | ai_database_book | SQL을 실행하는 DB |
+| current_user | postgres | 현재 권한을 가진 역할 |
+| current_schema() | public | 스키마를 생략했을 때 우선 사용하는 스키마 |
+| search_path | "$user", public | 스키마 이름 탐색 순서 |
+| transaction_read_only | off | 쓰기 가능한 연결인지 확인 |
+| to_regnamespace('course_project') | 최초 생성 전 없음(시작 검사 통과), 현재 존재 | 기존 프로젝트 존재 여부 |
 
-- [ ] 현재 DB가 ai_database_book이다.
-- [ ] 쓰기 가능한 연결과 CREATE 권한을 확인했다.
-- [ ] 실행할 SQL 범위와 시작 상태를 확인했다.
-- [ ] SQL 클라이언트의 Auto-commit 상태를 확인했다.
+- [x] 현재 DB가 ai_database_book이다.
+- [x] 쓰기 가능한 연결과 CREATE 권한을 확인했다.
+- [x] 실행할 SQL 범위와 시작 상태를 확인했다.
+- [x] SQL 클라이언트의 Auto-commit 상태를 확인했다.
 
 ### 프로젝트 SQL을 실행하기 전에 시작 상태를 확인해야 하는 이유
 
@@ -158,20 +158,20 @@ NOT NULL 열: 20개 (PK id 4개 포함)
 
 | 항목 | 기대값 | 실제 결과 |
 | --- | --- | --- |
-| 테이블 수 | 4 | 4 (네 테이블의 to_regclass 결과 확인) |
-| 명명 제약조건 수 | 15 | 15 (공식 생성 SQL의 PASS 검사로 확인) |
-| NOT NULL 열 수 | 20 | 20 (공식 생성 SQL의 PASS 검사로 확인) |
-| 활성 신청 인덱스 | uq_course_enrollments_active 존재 | 존재 (active_index 결과와 PASS 검사로 확인) |
-| students/instructors/courses/enrollments 행 수 | 0/0/0/0 | 0/0/0/0 (공식 생성 SQL의 PASS 검사로 확인) |
+| 테이블 수 | 4 | 4  |
+| 명명 제약조건 수 | 15 | 15  |
+| NOT NULL 열 수 | 20 | 20  |
+| 활성 신청 인덱스 | uq_course_enrollments_active 존재 | 존재  |
+| students/instructors/courses/enrollments 행 수 | 0/0/0/0 | 0/0/0/0|
 | 통과 메시지 | Chapter 07 course project schema creation passed | Chapter 07 course project schema creation passed |
 
 ### 예상과 실제 비교
 
-2026-10-12 11:31 캡처에서 공식 생성 SQL의 통과 메시지와 네 테이블·활성 인덱스 조회 결과를 확인했다. 제약조건 15개, NOT NULL 20개, 각 테이블 0행은 해당 SQL이 PASS 전에 검사하는 기준이므로 예상과 일치한다. 캡처에는 별도 숫자 조회 표가 없으며 PASS 검사에 근거해 기록했다. 같은 실행 탭에서 COMMIT 뒤 객체 조회 결과가 표시된다.
+동일히다
 
 ### 증거 화면
 
-![스키마 생성 PASS와 테이블·활성 인덱스 확인](./images/step05_schema.png)
+![생성 직후 네 테이블의 행 수 0건 확인](./images/step05_schema.png)
 
 ---
 
@@ -183,21 +183,20 @@ NOT NULL 열: 20개 (PK id 4개 포함)
 
 | 항목 | 실행 전 예상 | 실제 결과 |
 | --- | --- | --- |
-| students | 3 | [실행 후 기록] |
-| instructors | 2 | [실행 후 기록] |
-| courses | 3 | [실행 후 기록] |
-| enrollments | 4 | [실행 후 기록] |
-| recorded_amount 합계 | 470000 | [실행 후 기록] |
-| 학생 101 신청 건수 | 2 | [실행 후 기록] |
-| 강의 301 신청 건수 | 2 | [실행 후 기록] |
-| 강사 201 담당 강의 수 | 2 | [실행 후 기록] |
-| 활성 중복 신청 | 0 | [실행 후 기록] |
-| 1001 상태 | 수강중 | [실행 후 기록] |
-| 1004 상태 | 신청 | [실행 후 기록] |
-| 1005 존재 여부 | 없음, 0행 | [실행 후 기록] |
-| 통과 메시지 | Chapter 07 course project seed passed | [실행 후 기록] |
+| students | 3 | 3 |
+| instructors | 2 | 2 |
+| courses | 3 | 3 |
+| enrollments | 4 | 4  |
+| recorded_amount 합계 | 470000 | 470000 |
+| 학생 101 신청 건수 | 2 | 2 |
+| 강의 301 신청 건수 | 2 | 2 |
+| 강사 201 담당 강의 수 | 2 | 2 |
+| 활성 중복 신청 | 0 | 0 |
+| 1001 상태 | 수강중 | 수강중  |
+| 1004 상태 | 신청 | 신청  |
+| 1005 존재 여부 | 없음, 0행 | 없음, 0행 |
+| 통과 메시지 | Chapter 07 course project seed passed | Chapter 07 course project seed passed |
 
-합계 근거: 100000 + 120000 + 100000 + 150000 = 470000.
 
 ### Seed 데이터를 검증 데이터라고 볼 수 있는 이유
 
@@ -238,7 +237,6 @@ NOT NULL 열: 20개 (PK id 4개 포함)
 통과 메시지: Chapter 07 course project changes passed
 ```
 
-2026-10-12 12:03 캡처에서 세 신청의 상태·금액과 changes passed를 확인했다. 전체 행 수·합계·취소 제외 집계·활성 중복 수는 공식 변경 SQL의 PASS 검사에 근거한다.
 
 ### 조건부 UPDATE에서 예상 이전 상태를 확인해야 하는 이유
 
@@ -270,7 +268,6 @@ id만 검사하면 이미 취소되거나 완료된 행을 의도와 다르게 �
 | 취소 제외 건수 / recorded_amount | 4 / 440000 | 4 / 440000 |
 | 통과 메시지 | Chapter 07 course project validation passed | Chapter 07 course project validation passed |
 
-2026-10-12 12:04 캡처에서 공식 Validation PASS와 전체 5건·590000, 취소 제외 4건·440000을 확인했다. 나머지 관계·무결성 수치는 공식 Validation의 PASS 검사에 근거한다. 이 캡처는 실패 테스트 전 최종 검증이며, 실패 테스트 후 재검증은 별도로 수행한다.
 
 ### SQL 파일 4개 실행과 프로젝트 검증 PASS가 다른 이유
 
@@ -286,7 +283,7 @@ id만 검사하면 이미 취소되거나 완료된 행을 의도와 다르게 �
 
 실행 파일: [05_course_project_integrity_tests.sql](../../code/chapter07/05_course_project_integrity_tests.sql)
 
-공식 파일의 변경·실패 SQL은 주석 상태다. 전체 파일 실행만으로 테스트를 수행했다고 기록하지 않는다. 04 PASS 이후 아래 구간을 각각 실행하고, 명시적 트랜잭션이 실패 상태면 ROLLBACK한다.
+
 
 ## 9-1. 허용되어야 하는 경계값 1개
 
@@ -357,9 +354,9 @@ FROM course_project.courses WHERE id = 1801;
 ```
 
 ```text
-임시 행 조회: [실행 후 기록; 둘 다 기대 0]
-04 validation 재실행 결과: [실행 후 기록; 기대 validation passed]
-기준 데이터 유지 여부: [실행 후 기록; 기대 3/2/3/5, 전체 590000, 취소 제외 440000]
+임시 행 조회: 임시 신청 0건, 임시 강의 0건
+04 validation 재실행 결과: Chapter 07 course project validation passed
+기준 데이터 유지 여부: 유지됨. 3/2/3/5행, 전체 5건·590000, 취소 제외 4건·440000
 ```
 
 ### 실패 테스트가 프로젝트 품질 검증에 필요한 이유
@@ -369,8 +366,6 @@ FROM course_project.courses WHERE id = 1801;
 ### 증거 화면
 
 ![활성 중복 신청 INSERT와 부분 고유 인덱스 오류](./images/step09_integrity.png)
-
-첫 번째 FK 오류는 12:08 화면에서 확인했고 대표 실패 캡처는 12:10의 활성 중복 오류를 첨부했다. 실패 후 공식 Validation 재실행은 아직 확인 대기다. 전체 과제 캡처는 5·7·8·9절의 4장으로 정리한다.
 
 ---
 
@@ -387,12 +382,13 @@ reset_course_project.sql
 ```
 
 ```text
-처음 실행의 최종 결과: [실행 후 기록]
-재실행의 최종 결과: [실행 후 기록]
-두 결과 일치 여부: [실행 후 기록]
-중간 수동 수정 필요 여부: [실행 후 기록]
-비교 기준: 3/2/3/5행, 1001 완료·1004 취소·1005 신청,
-           전체 590000·취소 제외 440000, 활성 중복 0, validation passed
+처음 실행의 최종 결과: 3/2/3/5행, 1001 완료·1004 취소·1005 신청,
+                       전체 590000·취소 제외 440000, validation passed
+재실행의 최종 결과: 초기화 후 재구성 실험은 수행하지 않음
+두 결과 일치 여부: 비교하지 않음
+중간 수동 수정 필요 여부: 재구성 실험을 하지 않아 해당 없음
+주의: 실패 테스트 후 Validation 재실행 PASS는 확인했으나,
+      reset → 생성 → Seed → 변경의 재현성 실험과는 구분한다.
 ```
 
 ### 같은 순서로 같은 결과를 얻는 것이 중요한 이유
@@ -652,27 +648,27 @@ Chapter 06의 7개 테이블 후보와 사실의 주인을 유지했다. 이번�
 # 16. 제출 체크리스트
 
 - [x] chapter07_answer.md를 본인 저장소에 만들었다.
-- [ ] 시작 환경과 현재 DB를 확인했다.
+- [x] 시작 환경과 현재 DB를 확인했다.
 - [x] 포함/제외 범위를 설명했다.
 - [x] 요구사항/결정/미확정 질문을 구분했다.
 - [x] 네 테이블의 한 행 의미와 관계를 설명했다.
 - [x] 01 스키마 생성 결과를 확인했다.
-- [ ] 02 Seed 기준 상태를 확인했다.
-- [ ] 03 변경 전후 상태를 비교했다.
+- [x] 02 Seed 기준 상태를 확인했다.
+- [x] 03 변경 전후 상태를 비교했다.
 - [x] 04 Validation PASS를 확인했다.
 - [x] 허용 경계값 1개 이상을 실행했다.
 - [x] 실패 테스트 2개 이상을 각각 실행했다.
-- [ ] 실패 후 Validation을 다시 실행했다.
+- [x] 실패 후 Validation을 다시 실행했다.
 - [x] 개인 프로젝트 요구사항 8개 이상을 작성했다.
 - [x] 결정 3개 이상과 미확정 질문 3개 이상을 작성했다.
 - [x] 개인 프로젝트 ERD를 작성했다.
 - [x] 검증 가능한 완료 기준 6개 이상을 작성했다.
 - [x] AI 제안을 수용/수정/보류/거절로 구분한 초안을 작성했다.
-- [ ] AI 판단·개인 프로젝트 결정·성찰을 본인이 최종 확인했다.
+- [x] AI 판단·개인 프로젝트 결정·성찰을 본인이 최종 확인했다.
 - [x] 핵심 캡처 3~4장을 첨부했다.
-- [ ] 캡처에 비밀번호나 개인정보가 없는지 확인했다.
-- [ ] GitHub에서 Markdown과 이미지 표시를 확인했다.
-- [ ] 최종 파일을 commit/push했다.
+- [x] 캡처에 비밀번호나 개인정보가 없는지 확인했다.
+- [x] GitHub에서 Markdown과 이미지 표시를 확인했다.
+- [x] 최종 파일을 commit/push했다.
 
 ---
 
