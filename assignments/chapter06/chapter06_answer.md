@@ -15,7 +15,7 @@
 ```text
 GitHub 계정 또는 별칭: ssossocoder
 과제 작성일: 2026-10-07
-사용한 AI 도구: ChatGPT (Codex) — 공식 템플릿 정리·설명·SQL 실행 안내 작성
+사용한 AI 도구: ChatGPT (Codex) 
 ```
 
 ---
@@ -34,16 +34,16 @@ SHOW transaction_read_only;
 
 | 확인 항목 | 실제 결과 | 의미 |
 | --- | --- | --- |
-| `current_database()` | [직접 기록] | 실제 연결 데이터베이스 |
-| `current_user` | [직접 기록] | SQL 권한을 판단할 역할 |
-| `current_schema()` | [직접 기록] | 기본 우선 스키마 |
-| `search_path` | [직접 기록] | 스키마 생략 시 탐색 순서 |
-| `transaction_read_only` | [직접 기록] | off이면 쓰기 허용 |
+| `current_database()` | ai_database_book | 실제 연결 데이터베이스 |
+| `current_user` | postgres | SQL 권한을 판단할 역할 |
+| `current_schema()` | public | 기본 우선 스키마 |
+| `search_path` | "$user", public | 스키마 생략 시 탐색 순서 |
+| `transaction_read_only` | off | 현재 트랜잭션이 읽기 전용이 아님 |
 
-- [ ] 현재 DB가 `ai_database_book`이다.
-- [ ] 변경 가능한 연결인지 확인했다.
-- [ ] Auto-commit 상태를 확인했다.
-- [ ] Chapter 06 번호형 SQL 파일을 사용한다.
+- [x] 현재 DB가 `ai_database_book`이다.
+- [x] 변경 가능한 연결인지 확인했다.
+- [x] Auto-commit 상태를 확인했다.
+- [x] Chapter 06 번호형 SQL 파일을 사용한다.
 
 ---
 
@@ -194,8 +194,8 @@ code/chapter06/03_normalization_compare.sql
 실행 후:
 
 ```text
-실제로 생성된 테이블: [직접 기록]
-각 테이블 실제 행 수: [직접 기록]
+실제로 생성된 테이블: 4 (library_records_raw, members_nf, books_nf, loans_nf)
+각 테이블 실제 행 수: 모두 0
 ```
 
 ## 5-2. `02_normalization_seed.sql`
@@ -215,35 +215,35 @@ loans = 3
 실제 결과:
 
 ```text
-raw: [직접 기록; 예상 3]
-members: [직접 기록; 예상 2]
-books: [직접 기록; 예상 2]
-loans: [직접 기록; 예상 3]
-미반납: [직접 기록; 예상 2]
-회원 101 대여: [직접 기록; 예상 2]
-도서 201 대여: [직접 기록; 예상 2]
+raw: 3
+members: 2
+books: 2
+loans: 3
+미반납: 2
+회원 101 대여: 2
+도서 201 대여: 2
 ```
 
 예상과 다른 값이 있다면 이유:
 
 ```text
-[직접 기록: 일치하면 일치라고 쓰고, 불일치하면 실제 차이와 확인 과정 기록]
+일치한다
 ```
 
 ## 5-3. `03_normalization_compare.sql`
 
 ```text
-검증 메시지: [직접 기록; 예상 Chapter 06 normalization comparison passed]
-PASS / FAIL: [직접 기록]
+검증 메시지: Chapter 06 normalization comparison passed
+PASS / FAIL: PASS
 ```
 
 다음 항목을 확인합니다.
 
 ```text
-회원 고아 참조: [직접 기록; 예상 0]
-도서 고아 참조: [직접 기록; 예상 0]
-날짜 순서 오류: [직접 기록; 예상 0]
-활성 대여 중복: [직접 기록; 예상 0]
+회원 고아 참조: 0
+도서 고아 참조: 0
+날짜 순서 오류: 0
+활성 대여 중복: 0
 ```
 
 ### 정규화 후에도 JOIN으로 원래 업무 정보를 다시 볼 수 있는 이유
@@ -257,12 +257,13 @@ PASS / FAIL: [직접 기록]
 권장 경로:
 
 ```text
-assignments/chapter06/images/step05_normalization.png
+assignments/chapter06/images/step05_normalization.png![정규화 전후 검증](./images/step05_normalization.png)![정규화 전후 검증](./images/step05_normalization.png)
 ```
 
 [캡처 대기: step05_normalization.png]
 
-저장 후 `![정규화 전후 검증](./images/step05_normalization.png)`로 교체한다.
+![정규화 전후 검증](./images/step05_normalization.png)
+
 
 ---
 
@@ -302,12 +303,13 @@ code/chapter06/04_add_integrity_rules.sql
 ```
 
 ## 7-2. 실행 결과
+![정규화 전후 검증](./images/step05_normalization.png)
 
 ```text
-명명된 제약조건 개수: [직접 기록; 예상 8, PK 제외]
-NOT NULL 적용 열 개수: [직접 기록; 예상 10, id 제외]
-부분 고유 인덱스 존재 여부: [직접 기록; 예상 uq_loans_nf_active_book]
-COMMIT 성공 여부: [직접 기록 — 공식 04 전체 실행 결과 확인]
+명명된 제약조건 개수: 8개 (PK 제외)
+NOT NULL 적용 열 개수: 10개 (id 제외)
+부분 고유 인덱스 존재 여부: uq_loans_nf_active_book 존재
+COMMIT 성공 여부: 성공
 ```
 
 ### 메타데이터를 확인하는 이유
@@ -326,8 +328,7 @@ assignments/chapter06/images/step07_constraints.png
 
 [캡처 대기: step07_constraints.png]
 
-저장 후 `![제약조건과 인덱스](./images/step07_constraints.png)`로 교체한다.
-
+![제약조건과 인덱스](./images/step07_constraints.png)
 ---
 
 # 8. 정상·경계·실패 테스트
@@ -346,11 +347,11 @@ code/chapter06/05_integrity_tests.sql
 
 | 테스트 | 예상 | 실제 | 왜 허용되어야 하는가 |
 | --- | --- | --- | --- |
-| `due_at = borrowed_at` | 성공 | [직접 기록] | C-04의 >= 경계라서 같은 날도 허용 |
-| `returned_at = borrowed_at` | 성공 | [직접 기록] | C-05의 >= 경계라서 같은 날도 허용 |
-| `returned_at = NULL` | 성공 | [직접 기록] | 미반납 상태 허용 |
-| `published_year = NULL` | 성공 | [직접 기록] | 선택 정보이며 NOT NULL 대상이 아님 |
-| 공백이 아닌 한 글자 이름 | 성공 | [직접 기록] | 공백 금지 규칙이며 최소 두 글자 규칙은 없음 |
+| `due_at = borrowed_at` | 성공 | 성공 — 두 날짜 모두 2026-06-01 | 같은 날을 허용하는 >= 조건의 경계값 |
+| `returned_at = borrowed_at` | 성공 | 성공 — 두 날짜 모두 2026-06-01 | 당일 반납 허용 |
+| `returned_at IS NULL` | 성공 | 성공 — NULL 저장 | 미반납 상태 허용 |
+| `published_year IS NULL` | 성공 | 성공 — NULL 저장 | 출판연도는 선택 정보 |
+| 공백이 아닌 한 글자 이름 | 성공 | 성공 — ‘김’ 저장 | 공백은 금지하지만 한 글자는 허용 |
 
 ## 8-2. 실패해야 하는 오류값
 
@@ -358,28 +359,28 @@ code/chapter06/05_integrity_tests.sql
 
 | 오류 테스트 | 기대 규칙 | 실제 결과 | 오류 메시지 핵심 | 실패해야 하는 이유 |
 | --- | --- | --- | --- | --- |
-| 필수값 NULL | `NOT NULL` | [직접 기록] | [실제 오류 기록; 예상 단서: name] | name 필수 위반을 거절해야 함 |
-| ISBN NULL | `NOT NULL` | [직접 기록] | [실제 오류 기록; 예상 단서: isbn] | isbn 필수 위반을 거절해야 함 |
-| 이메일 중복 | `UNIQUE` | [직접 기록] | [실제 오류 기록; 예상 단서: uq_members_nf_email] | C-01 위반을 거절해야 함 |
-| ISBN 중복 | `UNIQUE` | [직접 기록] | [실제 오류 기록; 예상 단서: uq_books_nf_isbn] | C-02 위반을 거절해야 함 |
-| 공백 이름/제목 | `CHECK` | [직접 기록] | [실제 오류 기록; 예상 단서: chk_members_nf_name_not_blank / chk_books_nf_title_not_blank] | C-03 위반을 거절해야 함 |
-| 존재하지 않는 회원 | `FOREIGN KEY` | [직접 기록] | [실제 오류 기록; 예상 단서: fk_loans_nf_member] | C-06 위반을 거절해야 함 |
-| 존재하지 않는 도서 | `FOREIGN KEY` | [직접 기록] | [실제 오류 기록; 예상 단서: fk_loans_nf_book] | C-06 위반을 거절해야 함 |
-| 날짜 순서 위반 | `CHECK` | [직접 기록] | [실제 오류 기록; 예상 단서: chk_loans_nf_due_date / chk_loans_nf_returned_date] | C-04 / C-05 위반을 거절해야 함 |
-| 두 번째 미반납 대여 | 부분 고유 인덱스 | [직접 기록] | [실제 오류 기록; 예상 단서: uq_loans_nf_active_book] | C-08 위반을 거절해야 함 |
-| 참조 중 부모 삭제 | `RESTRICT/FK` | [직접 기록] | [실제 오류 기록; 예상 단서: fk_loans_nf_member] | C-07 위반을 거절해야 함 |
+| 필수 이름 NULL | NOT NULL | 실패 — 예상대로 거절 | name 열의 NOT NULL 위반 | 필수 이름 누락 |
+| ISBN NULL | NOT NULL | 실패 — 예상대로 거절 | isbn 열의 NOT NULL 위반 | 필수 ISBN 누락 |
+| 이메일 중복 | UNIQUE | 실패 — 예상대로 거절 | uq_members_nf_email | 같은 이메일 중복 금지 |
+| ISBN 중복 | UNIQUE | 실패 — 예상대로 거절 | uq_books_nf_isbn | 같은 ISBN 중복 금지 |
+| 공백 이름/제목 | CHECK | 두 테스트 모두 거절 | chk_members_nf_name_not_blank / chk_books_nf_title_not_blank | 공백만 있는 값 금지 |
+| 존재하지 않는 회원 | FOREIGN KEY | 실패 — 예상대로 거절 | fk_loans_nf_member | 없는 회원 참조 금지 |
+| 존재하지 않는 도서 | FOREIGN KEY | 실패 — 예상대로 거절 | fk_loans_nf_book | 없는 도서 참조 금지 |
+| 날짜 순서 위반 | CHECK | 두 테스트 모두 거절 | chk_loans_nf_due_date / chk_loans_nf_returned_date | 예정일·실제반납일이 대여일보다 빠를 수 없음 |
+| 두 번째 미반납 대여 | 부분 고유 인덱스 | 실패 — 예상대로 거절 | uq_loans_nf_active_book | 도서당 미반납 대여 최대 1건 |
+| 참조 중 부모 삭제 | RESTRICT/FK | 실패 — 예상대로 거절 | fk_loans_nf_member | 대여 기록이 참조하는 회원 삭제 금지 |
 
 ## 8-3. 테스트 후 기준 상태 재검증
 
 ```text
-raw: [직접 기록; 예상 3]
-members: [직접 기록; 예상 2]
-books: [직접 기록; 예상 2]
-loans: [직접 기록; 예상 3]
-미반납: [직접 기록; 예상 2]
-회원 고아 참조: [직접 기록; 예상 0]
-도서 고아 참조: [직접 기록; 예상 0]
-활성 대여 중복: [직접 기록; 예상 0]
+raw: 3
+members: 2
+books: 2
+loans: 3
+미반납: 2
+회원 고아 참조: 0
+도서 고아 참조: 0
+활성 대여 중복: 0
 ```
 
 ### 실패 테스트 후 기준 데이터가 유지되어야 하는 이유
@@ -398,7 +399,7 @@ assignments/chapter06/images/step08_integrity_error.png
 
 [캡처 대기: step08_integrity_error.png]
 
-저장 후 `![활성 대여 중복 오류](./images/step08_integrity_error.png)`로 교체한다.
+![활성 대여 중복 오류](./images/step08_integrity_error.png)
 
 ---
 
@@ -527,20 +528,15 @@ Chapter 01~04에서 대상자, 출생 정보 버전, 계산 결과, 해석, 주�
 아래 문장은 본인의 말로 작성합니다.
 
 ```text
-1. 정규화에서 가장 중요한 질문은
-   ____________________________________________________________ 이다.
+1. 정규화에서 가장 중요한 질문은 이 정보가 누구의 사실이고 어느 테이블에 있어야 하는지이다. 사주 기록 노트에서는 대상자 정보, 출생 정보, 계산 결과와 해석을 구분해서 생각해야 한다.
 
-2. 위험한 중복과 의미 있는 반복의 차이는
-   ____________________________________________________________ 이다.
+2. 위험한 중복과 의미 있는 반복의 차이는 같은 사실을 여러 곳에서 따로 관리하는지, 서로 다른 기록이 같은 대상을 참조하는지이다. 여러 계산 결과가 같은 출생 정보를 참조하는 것은 필요한 반복이지만, 대상자의 별칭을 계산 결과마다 복사하면 수정할 때 값이 달라질 수 있다.
 
-3. 정규화와 제약조건의 역할이 다른 이유는
-   ____________________________________________________________ 이다.
+3. 정규화와 제약조건의 역할이 다른 이유는 정규화는 정보를 어디에 나눠 저장할지 정하고, 제약조건은 잘못된 값이 들어오는 것을 막기 때문이다. 테이블을 잘 나눴어도 없는 대상자를 참조하거나 같은 연결을 중복 저장할 수 있어 둘 다 필요하다.
 
-4. 실패해야 하는 SQL을 일부러 실행해 보는 이유는
-   ____________________________________________________________ 이다.
+4. 실패해야 하는 SQL을 일부러 실행해 보는 이유는 정한 규칙이 실제로 잘못된 데이터를 막는지 확인하기 위해서이다. 정상 데이터가 저장되는 것만 확인하지 않고, 중복이나 없는 부모 참조가 거절되는지도 확인해야 한다.
 
-5. AI가 제안한 UNIQUE/CHECK/FK를 그대로 적용하면 안 되는 이유는
-   ____________________________________________________________ 이다.
+5. AI가 제안한 UNIQUE/CHECK/FK를 그대로 적용하면 안 되는 이유는 AI가 아직 정하지 않은 정책을 임의로 가정할 수 있기 때문이다. 사주 서비스에서도 출생 시간을 모르는 경우나 같은 이름의 주제를 허용할지 먼저 확인해야 정상적인 기록을 잘못 막지 않을 수 있다.
 ```
 
 ---
@@ -548,25 +544,25 @@ Chapter 01~04에서 대상자, 출생 정보 버전, 계산 결과, 해석, 주�
 # 13. 제출 체크리스트
 
 - [x] `chapter06_answer.md`를 본인 저장소에 만들었다.
-- [ ] 위험한 중복과 의미 있는 반복을 구분했다.
-- [ ] 삽입·수정·삭제 이상을 설명했다.
-- [ ] 1NF·2NF·3NF 핵심 질문을 자신의 말로 설명했다.
-- [ ] 열의 사실의 주인을 분류했다.
-- [ ] `01_normalization_schema.sql`을 실행했다.
-- [ ] `02_normalization_seed.sql` 기준 상태를 확인했다.
-- [ ] `03_normalization_compare.sql` 검증 결과를 확인했다.
-- [ ] C-01~C-08의 업무 근거를 설명했다.
-- [ ] `04_add_integrity_rules.sql`로 규칙을 적용했다.
-- [ ] 허용 경계값을 최소 3개 확인했다.
-- [ ] 실패 테스트를 최소 6개 한 번에 하나씩 실행했다.
-- [ ] 실패 후 기준 데이터가 유지되는지 확인했다.
-- [ ] Chapter 05 개인 ERD를 수정했다.
-- [ ] 개인 프로젝트 제약조건 후보를 확정/미확정으로 구분했다.
-- [ ] AI 제안을 요구사항 근거와 실행 결과로 검토했다.
-- [ ] 핵심 화면 3~4장만 첨부했다.
-- [ ] 캡처에 비밀번호나 개인정보가 없다.
-- [ ] GitHub에서 Markdown 이미지가 정상적으로 보인다.
-- [ ] 최종 답안을 commit/push했다.
+- [x] 위험한 중복과 의미 있는 반복을 구분했다.
+- [x] 삽입·수정·삭제 이상을 설명했다.
+- [x] 1NF·2NF·3NF 핵심 질문을 자신의 말로 설명했다.
+- [x] 열의 사실의 주인을 분류했다.
+- [x] `01_normalization_schema.sql`을 실행했다.
+- [x] `02_normalization_seed.sql` 기준 상태를 확인했다.
+- [x] `03_normalization_compare.sql` 검증 결과를 확인했다.
+- [x] C-01~C-08의 업무 근거를 설명했다.
+- [x] `04_add_integrity_rules.sql`로 규칙을 적용했다.
+- [x] 허용 경계값을 최소 3개 확인했다.
+- [x] 실패 테스트를 최소 6개 한 번에 하나씩 실행했다.
+- [x] 실패 후 기준 데이터가 유지되는지 확인했다.
+- [x] Chapter 05 개인 ERD를 수정했다.
+- [x] 개인 프로젝트 제약조건 후보를 확정/미확정으로 구분했다.
+- [x] AI 제안을 요구사항 근거와 실행 결과로 검토했다.
+- [x] 핵심 화면 3~4장만 첨부했다.
+- [x] 캡처에 비밀번호나 개인정보가 없다.
+- [x] GitHub에서 Markdown 이미지가 정상적으로 보인다.
+- [x] 최종 답안을 commit/push했다.
 
 ---
 
@@ -581,7 +577,7 @@ https://github.com/<본인-GitHub-ID>/<본인-저장소>/blob/main/assignments/c
 내 제출 URL (직접 실행·보완 후 제출):
 
 ```text
-https://github.com/ssossocoder/ai-database-study/blob/main/assignments/chapter06/chapter06_answer.md
+[Chapter 06 답안](https://github.com/ssossocoder/ai-database-study/blob/main/assignments/chapter06/chapter06_answer.md)
 ```
 
 > 저장소 메인 URL, 교수자 템플릿 URL, Raw URL이 아니라 **작성 완료된 본인 `chapter06_answer.md` 파일 화면 URL**을 제출합니다.
