@@ -2,7 +2,7 @@
 
 > JOIN과 집계로 서비스 질문에 답하기
 >
-> 작성 상태: 사전 검사 통과, 다중 JOIN 5행, 과대 집계 비교, 최종 자동 검증 통과를 본인 DBeaver 캡처로 확인했다. 증거 화면은 3장을 사용하며 1절과 3절은 같은 사진을 참조한다. 실제 결과의 근거는 직접 캡처한 결과, 공식 00·03 검증 SQL 내부에서 확인한 값, 캡처된 상세 행의 수동 검산으로 구분한다. 아래 개별 SQL 모두를 별도로 실행했다는 의미는 아니다. 개인 프로젝트는 설계 단계이므로 SQL 초안과 검산 계획을 제시한다.
+> 작성 상태: 사전 검사 통과, 다중 JOIN 5행, 과대 집계 비교, 최종 자동 검증 통과를 본인 DBeaver 캡처로 확인했다. 증거 화면은 3장을 사용하며 1절과 3절은 같은 사진을 참조한다. 실제 결과의 근거는 직접 캡처한 결과, 공식 00·03 검증 SQL 내부에서 확인한 값, 캡처된 상세 행의 수동 검산으로 구분한다. 아래 개별 SQL 모두를 별도로 실행했다는 의미는 아니다. 개인 프로젝트는 database-project의 청약 의사결정 노트로 변경했으며, 해당 프로젝트 문서의 미구현 상태에 따라 SQL 초안과 검산 계획을 제시한다.
 
 ```text
 GitHub 계정: ssossocoder
@@ -417,71 +417,131 @@ WHERE course_id = 302 AND status <> '취소';
 
 # 12. 개인 프로젝트 업무 질문 3개 만들기
 
-프로젝트: **사주 기록 노트**. Chapter 07의 테이블·키 이름을 계승한다. 개인 프로젝트 테이블은 아직 PostgreSQL로 구현·실행하지 않았다. 아래는 **SQL 초안이며 전부 미실행**이다. author_type 값도 구현 시 확정할 정책으로, 여기서는 사람=`human`, AI=`ai`를 가정한다. 삭제·보관 상태나 출생 시간 필수성 등 미확정 정책은 추가하지 않는다.
+## 프로젝트 변경과 근거
+
+개인 프로젝트를 기존 사주 기록 노트에서 **`database-project` 저장소의 ‘청약 의사결정 노트’**로 변경했다. 12절은 이 새 프로젝트의 기획안·ERD를 기준으로 다시 작성했다. 앞의 1~11절은 공통 실습인 수강신청 DB의 실제 실행 결과다.
+
+- [프로젝트 저장소](https://github.com/ssossocoder/database-project)
+- [기획안과 테이블 명세](https://github.com/ssossocoder/database-project/blob/main/database-project/01_proposal/proposal.md)
+- [ERD 원본](https://github.com/ssossocoder/database-project/blob/main/database-project/docs/erd/proposal-erd.mmd)
+- [기존 업무 SQL 초안](https://github.com/ssossocoder/database-project/blob/main/database-project/database/proposal-queries.sql)
+
+이 서비스는 청약 공고·주택형·공급 물량·참고 거래를 연결하고, 회원이 관심 공고와 판단 노트를 기록하는 서비스다. 이번 질문은 Chapter 08의 JOIN·집계 개념에 맞춰 공급 물량과 개인 기록을 중심으로 정했다.
+
+현재 프로젝트 문서에는 **DB 생성·데이터 적재·SQL 실행이 미완료**로 기록되어 있다. API 표본 호출을 완료한 사실은 DB SQL 실행을 완료했다는 뜻이 아니다. 따라서 아래는 실제 테이블·컬럼 설계에 근거한 SQL 초안이며 **전부 DB 미실행**이다. 교수자 템플릿의 미구현 프로젝트 예외에 따라 예상 결과와 검산 방법을 작성한다.
+
+## 질문별 업무 정의
 
 | 질문 ID | 업무 질문 | 결과 한 행 | 포함/제외 범위 | JOIN 경로 | 집계 대상 | 검산 방법 |
 | --- | --- | --- | --- | --- | --- | --- |
-| P08-Q01 | 대상자별 출생 입력 버전과 계산 결과가 몇 건인가? | 대상자 | 모든 입력·계산, 0건 대상자 포함 | subjects → birth_info → calculation_results | 고유 입력 수, 계산 수 | 대상자 A의 입력 2건/계산 3건, B의 입력 1건/계산 0건 확인 |
-| P08-Q02 | 각 계산 결과에 사람·AI 해석이 몇 건씩 있는가? | 계산 결과 | 모든 계산, 0건 포함, 사람/AI 외 값은 별도 확인 | calculation_results → interpretations | 해석 ID와 유형별 건수 | C1 해석 I1·I2 직접 조회, 유형 합계 대조 |
-| P08-Q03 | 주제별 연결 해석 수와 고유 대상자 수는 얼마인가? | 주제 | 모든 주제, 계산 미연결 해석도 해석 수에는 포함 | topics → interpretation_topics → interpretations → calculation_results → birth_info | 고유 해석·대상자 수 | 진로=2해석/1대상자, 관계=1해석/1대상자 |
+| P08-Q01 | 활성 공고별 주택형 수와 확인된 공급 물량은 얼마인가? | 공고 한 개 | is_active=true, 주택형·물량 없는 공고도 유지; 비활성 제외 | announcement → unit_type → allocation | 고유 주택형 수, 공급 행 수, household_count 합계 | 공고별 주택형과 공급 세부유형을 따로 나열하여 합계 비교 |
+| P08-Q02 | 회원별 관심 공고 수와 작성 노트 수는 몇 건인가? | 회원 한 명 | 모든 회원·관심 기록·노트; 공고 활성 여부로 개인 기록을 제거하지 않음 | app_user → watchlist → user_note | 고유 watchlist.id 수, user_note.id 수 | 회원의 관심 ID를 먼저 세고 각 관심 기록의 노트를 따로 합산 |
+| P08-Q03 | 특정 회원이 아직 관심 목록에 넣지 않은 활성 공고는 무엇인가? | 공고 한 개 | 활성 공고 중 해당 회원의 관심 기록이 없는 것; 다른 회원의 관심 여부 무관 | announcement ↔ watchlist.app_user_id, app_user.id | 해당 회원의 연결 존재 여부, 결과 공고 수 | 활성 공고 ID 집합에서 해당 회원이 저장한 공고 ID 집합을 빼서 비교 |
 
-기대값은 Chapter 07의 가상 시나리오를 사용한다. A의 입력 A1·A2, B의 입력 B1, A1의 C1·C2와 A2의 C3, C1의 사람 I1·AI I2, I1의 진로·관계 및 I2의 진로 연결이다. 실제 데이터가 아니다.
+## 예상 검산용 가상 데이터
 
-## 12-1. 질문 1 SQL
+아래는 추후 DB 구현 시 검증할 **가상 Seed 계획**이며 API에서 받은 실제 공고·회원·공급 수량이 아니다. A·B·C는 공고 설명용 기호다.
 
-```sql
-SELECT s.id AS subject_id, s.subject_code,
-       COUNT(DISTINCT b.birth_info_id) AS birth_version_count,
-       COUNT(c.calculation_id) AS calculation_count
-FROM subjects AS s
-LEFT JOIN birth_info AS b ON b.subject_id = s.id
-LEFT JOIN calculation_results AS c ON c.birth_info_id = b.birth_info_id
-GROUP BY s.id, s.subject_code
-ORDER BY s.id;
-```
+- 공고 A·B는 활성, C는 비활성이다.
+- A의 주택형은 A1·A2 두 개다. 공급 세부유형은 A1=일반 6·특별 세부유형 4, A2=일반 5로 총 15세대다.
+- B의 주택형은 B1 한 개이고 공급 물량은 일반 20세대다.
+- C는 주택형 C1·공급 7세대가 있지만 질문 1·3의 활성 범위에서는 제외한다.
+- 회원 1은 A를 저장하고 그 관심 기록에 노트 2개를 작성한다. 회원 2는 A·B를 저장하고 노트는 없다. 회원 3은 관심 기록·노트가 없다.
+- 같은 회원·공고의 관심 기록은 기획안의 UNIQUE(app_user_id, announcement_id)로 중복 방지할 계획이다.
 
-예상 결과: A=입력 2건/계산 3건, B=입력 1건/계산 0건.
-실제 결과: 미실행. 검산 계획: birth_info와 calculation_results를 각각 조회해 ID별로 센다. A1이 C1·C2 때문에 두 번 연결되므로 입력 수에는 DISTINCT를 쓴다. 다른 자식 테이블을 추가하면 계산 수의 증폭도 다시 검토한다.
-
-## 12-2. 질문 2 SQL
+## 12-1. 질문 1 SQL — 활성 공고별 주택형·공급 물량
 
 ```sql
-SELECT c.calculation_id, c.rule_version,
-       COUNT(i.interpretation_id) AS interpretation_count,
-       COUNT(i.interpretation_id) FILTER (WHERE i.author_type = 'human') AS human_count,
-       COUNT(i.interpretation_id) FILTER (WHERE i.author_type = 'ai') AS ai_count,
-       COUNT(i.interpretation_id) FILTER (
-         WHERE i.author_type IS NULL OR i.author_type NOT IN ('human', 'ai')
-       ) AS unclassified_count
-FROM calculation_results AS c
-LEFT JOIN interpretations AS i ON i.calculation_id = c.calculation_id
-GROUP BY c.calculation_id, c.rule_version
-ORDER BY c.calculation_id;
+SELECT a.id AS announcement_id, a.name,
+       COUNT(DISTINCT u.id) AS unit_type_count,
+       COUNT(al.id) AS allocation_row_count,
+       COUNT(al.household_count) AS known_allocation_count,
+       SUM(al.household_count) AS known_household_sum
+FROM announcement AS a
+LEFT JOIN unit_type AS u ON u.announcement_id = a.id
+LEFT JOIN allocation AS al ON al.unit_type_id = u.id
+WHERE a.is_active = TRUE
+GROUP BY a.id, a.name
+ORDER BY a.id;
 ```
 
-예상 결과: C1=전체 2/사람 1/AI 1/미분류 0, C2·C3=모두 0.
-실제 결과: 미실행. 검산 계획: I1·I2를 직접 조회하여 사람+AI+미분류=전체인지 비교한다. 해석이 없는 계산도 LEFT JOIN으로 보존한다. 계산 미연결 해석은 이 질문의 계산별 집계에 포함되지 않으므로 별도로 조회한다.
+```text
+예상 결과:
+A = 주택형 2 / 공급 행 3 / 물량 확인 행 3 / 확인된 공급 합계 15
+B = 주택형 1 / 공급 행 1 / 물량 확인 행 1 / 확인된 공급 합계 20
+C = 비활성이므로 결과에 없음
+실제 결과: DB 미실행.
+검산 계획: A1의 6+4=10, A2의 5를 더하면 A=15, B1=20이다.
+활성 범위의 확인된 공급 합계는 15+20=35다.
+```
 
-## 12-3. 질문 3 SQL
+공급 세부유형을 연결하면 같은 주택형이 반복되므로 주택형 수는 COUNT(DISTINCT u.id)로 센다. 공급이 없는 공고는 LEFT JOIN으로 유지하며 공급 행 수는 0이다. household_count가 미확인인 NULL을 0세대로 오해하지 않도록 SUM에 COALESCE를 적용하지 않았다. known_household_sum은 **확인된 값만 합친 수치**이며, allocation_row_count와 known_allocation_count가 다르면 전체 물량으로 단정하지 않는다. 공급 데이터가 전혀 없거나 모두 NULL이면 합계는 NULL이다.
+
+기획안처럼 allocation에 공급 합계 행과 그 구성 세부유형을 동시에 중복 적재하지 않는다는 전제가 필요하다. 경쟁률·가점 스냅샷까지 같은 쿼리에 연결하면 공급 행이 반복될 수 있으므로, 이 질문에서는 연결하지 않는다.
+
+## 12-2. 질문 2 SQL — 회원별 관심 공고·노트 수
 
 ```sql
-SELECT t.topic_id, t.topic_name,
-       COUNT(DISTINCT i.interpretation_id) AS interpretation_count,
-       COUNT(DISTINCT b.subject_id) AS subject_count,
-       COUNT(DISTINCT i.interpretation_id) FILTER (
-         WHERE i.calculation_id IS NULL
-       ) AS without_calculation_count
-FROM topics AS t
-LEFT JOIN interpretation_topics AS it ON it.topic_id = t.topic_id
-LEFT JOIN interpretations AS i ON i.interpretation_id = it.interpretation_id
-LEFT JOIN calculation_results AS c ON c.calculation_id = i.calculation_id
-LEFT JOIN birth_info AS b ON b.birth_info_id = c.birth_info_id
-GROUP BY t.topic_id, t.topic_name
-ORDER BY t.topic_id;
+SELECT u.id AS app_user_id,
+       COUNT(DISTINCT w.id) AS watchlist_count,
+       COUNT(n.id) AS note_count
+FROM app_user AS u
+LEFT JOIN watchlist AS w ON w.app_user_id = u.id
+LEFT JOIN user_note AS n ON n.watchlist_id = w.id
+GROUP BY u.id
+ORDER BY u.id;
 ```
 
-예상 결과: 진로=해석 2/대상자 1/계산 미연결 0, 관계=해석 1/대상자 1/계산 미연결 0.
-실제 결과: 미실행. 검산 계획: 주제별 연결쌍 2개·1개를 직접 나열하고 대상자 A가 반복되어도 한 명으로 세는지 확인한다. 주제별 해석 수 합 3은 고유 해석 수 2와 같지 않다. I1이 두 주제에 속하기 때문이다. 추가 검증 시 연결 없는 주제는 0/0, 계산 없는 해석은 해석 수에만 포함되는지도 확인한다.
+```text
+예상 결과:
+회원 1 = 관심 공고 1 / 노트 2
+회원 2 = 관심 공고 2 / 노트 0
+회원 3 = 관심 공고 0 / 노트 0
+실제 결과: DB 미실행.
+검산 계획: watchlist에서 회원별 기록을 먼저 세면 1·2·0건이다.
+각 관심 기록에 연결된 user_note를 별도로 세면 2·0·0건이다.
+관심 합계 3건, 노트 합계 2건과 집계 결과의 합을 비교한다.
+```
+
+관심 공고 하나에 노트가 2개면 JOIN 결과에서 같은 watchlist.id가 두 번 나온다. 따라서 COUNT(w.id) 대신 COUNT(DISTINCT w.id)를 사용한다. 노트는 이 JOIN 경로에서 한 번씩 연결되므로 COUNT(n.id)로 센다. COUNT(*)를 쓰면 관심 기록이 없는 회원도 한 건으로 셀 수 있어 사용하지 않는다.
+
+이 쿼리는 익명 ID만 반환하는 검증·운영용 전체 집계 초안이다. 실제 회원 화면에는 서버에서 인증한 회원 ID로 범위를 제한해야 한다. 가상 테스트에서 개인정보·비밀번호 해시·노트 본문을 출력하지 않는다.
+
+## 12-3. 질문 3 SQL — 아직 관심 목록에 없는 활성 공고
+
+아래 params의 1은 검산용 가상 회원 ID다. 실제 회원 화면에서는 이 값을 사용자가 임의로 입력하게 하지 않고 서버 인증에서 얻은 회원 ID를 바인드한다.
+
+```sql
+WITH params AS (
+    SELECT 1 AS target_app_user_id
+)
+SELECT a.id AS announcement_id, a.name, a.application_start_date
+FROM announcement AS a
+CROSS JOIN params AS p
+WHERE a.is_active = TRUE
+  AND EXISTS (
+      SELECT 1 FROM app_user AS u
+      WHERE u.id = p.target_app_user_id
+  )
+  AND NOT EXISTS (
+      SELECT 1 FROM watchlist AS w
+      WHERE w.announcement_id = a.id
+        AND w.app_user_id = p.target_app_user_id
+  )
+ORDER BY a.application_start_date, a.id;
+```
+
+```text
+예상 결과:
+회원 1로 조회하면 B 한 행. A는 이미 저장했고 C는 비활성이라 제외한다.
+회원 2로 조회하면 0행. 활성 공고 A·B를 모두 저장했기 때문이다.
+회원 3으로 조회하면 A·B 두 행. 관심 기록이 없어도 회원은 존재한다.
+실제 결과: DB 미실행.
+검산 계획: 활성 집합 {A,B}에서 회원 1의 관심 집합 {A}를 빼면 {B}다.
+회원 2가 B를 저장했더라도 회원 1의 조회에서 B가 사라지면 안 된다.
+```
+
+NOT EXISTS 내부에서 공고 ID와 회원 ID를 모두 비교한다. 공고 ID만 비교하면 다른 회원이 저장한 공고까지 제외하는 오류가 생긴다. EXISTS로 대상 회원의 존재도 확인해 존재하지 않는 회원 ID를 ‘관심 기록 0건인 회원’과 구분한다. 실제 캡처는 DB 구현·가상 Seed 입력 후 SQL과 결과 표를 함께 확보하며, 미실행 상태에서는 결과 이미지를 만들지 않는다.
 
 # 13. AI를 JOIN·집계 리뷰어로 활용
 
@@ -490,7 +550,7 @@ ORDER BY t.topic_id;
 이번 답안 작성 요청을 다음 검토 기준으로 구체화했다.
 
 ```text
-Chapter 07 최종 course_project 데이터와 사주 기록 노트 설계를 기준으로
+Chapter 07 최종 course_project 데이터와 database-project의 청약 의사결정 노트 설계를 기준으로
 JOIN·집계 SQL을 검토한다. 각 결과 한 행의 의미와 상태 범위를 먼저 정하고,
 0건 부모 보존, COUNT 대상, ON/WHERE 차이, 1:N·N:M 과대 집계,
 상세 행과 집계의 교차 검산을 확인한다.
@@ -514,7 +574,7 @@ JOIN·집계 SQL을 검토한다. 각 결과 한 행의 의미와 상태 범위�
 
 ### AI가 만든 SQL에서 확인한 위험
 
-SUM(DISTINCT price)는 같은 가격의 다른 강의를 지울 수 있다. 개인 프로젝트에서도 출생 입력에 계산을 연결하면 입력 행이 반복되므로 입력 버전 수는 고유 PK로 센다. 주제별 해석 수를 더하면 여러 주제에 속한 해석이 반복되므로 전체 고유 해석 수와 혼동하지 않는다.
+SUM(DISTINCT price)는 같은 가격의 다른 강의를 지울 수 있다. 청약 프로젝트에서는 한 주택형의 여러 공급유형을 연결하면 주택형이 반복되므로 고유 주택형 ID를 센다. 회원별 관심 공고에 노트를 연결할 때도 관심 기록이 노트 수만큼 반복되므로 COUNT(DISTINCT w.id)를 사용한다. 공급 합계와 세부유형을 중복 적재하거나 경쟁률 스냅샷을 함께 연결하여 물량을 반복 합산하지 않는지 확인한다. 또한 물량 미확인 NULL과 실제 0세대를 구분한다.
 
 ### 실행 성공만으로 정답이라고 할 수 없는 이유
 
@@ -547,7 +607,7 @@ SUM(DISTINCT price)는 같은 가격의 다른 강의를 지울 수 있다. 개�
 - [x] 실제 캡처·자동 검증·수동 검산을 근거로 결과와 일치 여부를 구분해 기록했다.
 - [x] 03 자동 완료 게이트 통과를 확인했다.
 - [x] 핵심 증거 화면 3장을 확보하고 답안의 해당 절에 연결했다(1절·3절은 같은 사진 사용).
-- [x] 본인이 개인 프로젝트 가정·AI 검토·성찰을 최종 확인했다.
+- [ ] 변경한 청약 프로젝트의 가정·AI 검토·성찰을 본인이 최종 확인했다.
 - [x] 캡처까지 포함해 비밀번호·개인정보가 없는지 확인했다.
 - [x] GitHub 웹에서 최종 Markdown·증거 표시를 확인했다.
 - [x] 실행·캡처 반영 후 최종 제출본을 commit/push했다.
