@@ -140,7 +140,8 @@ course 302 remaining_seats: 1
 course 303 remaining_seats: 1
 lab enrollments 행 수: 0
 payments 행 수: 0
-통과 메시지: 기존 초기 데이터 검증 통과
+통과 메시지: Chapter 09 transaction lab seed validation passed
+추가 검증 메시지: 기존 초기 데이터 검증 통과
 검증 방법: 이미 입력된 데이터를 대상으로 공식 02의 초기 상태 검증 DO 블록을 재실행했다. INSERT는 다시 실행하지 않았다.
 ```
 
