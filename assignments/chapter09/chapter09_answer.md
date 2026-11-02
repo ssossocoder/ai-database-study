@@ -100,15 +100,15 @@ course_project는 이전 장의 기준 데이터이고 transaction_lab은 이번
 
 ### 증거 화면
 
-저장 경로:
+권장 경로:
 
 ```text
 assignments/chapter09/images/step02_schema.png
 ```
 
-```markdown
+`여기에 transaction_lab 구조가 보이는 핵심 화면을 삽입하세요.`
+
 ![transaction_lab의 세 테이블 구조](images/step02_schema.png)
-```
 
 transaction_lab에 course_inventory, enrollments, payments 세 테이블이 조회되었다.
 
@@ -222,15 +222,15 @@ Chapter 09 first commit validation passed
 
 ### 증거 화면
 
-저장 경로:
+권장 경로:
 
 ```text
 assignments/chapter09/images/step04_commit.png
 ```
 
-```markdown
+`여기에 COMMIT 후 좌석·신청·결제 관계를 확인할 수 있는 화면을 삽입하세요.`
+
 ![COMMIT 후 좌석·신청·결제 관계 재조회](images/step04_commit.png)
-```
 
 신청 9001은 학생 101·강의 301의 수강중 신청이며, 신청 금액과 결제 9901의 금액은 모두 100000이다. 잔여 좌석은 1이고 matched는 true이다. 첫 COMMIT 당시와 이후 재조회 결과가 일치했다.
 
@@ -406,9 +406,13 @@ lab의 상태가 정상이어도 원본 스키마를 잘못 수정했다면 실�
 
 ### 증거 화면
 
-```markdown
-![주 실습 최종 정합성 검증 통과](images/step07_validation.png)
+권장 경로:
+
+```text
+assignments/chapter09/images/step07_validation.png
 ```
+
+![주 실습 최종 정합성 검증 통과](images/step07_validation.png)
 
 최종 검증에서 원본 데이터 보존, 좌석·신청·결제 정합성, 9003·9903 부재가 확인되었다. 선택 실습을 마친 후에도 같은 검증을 다시 통과했다.
 
@@ -483,19 +487,17 @@ Lock 대기는 한 세션이 다른 세션이 가진 잠금의 해제를 기다�
 
 ### 증거 화면
 
-저장 경로:
+실제 수행했다면 권장 경로:
 
 ```text
 assignments/chapter09/images/step09_lock.png
 ```
 
----
-
-```markdown
 ![두 세션 잠금 대기 시간 초과](images/step09_lock.png)
-```
 
 A가 강의 303 행을 잠근 동안 B에서 55P03 lock timeout 오류가 발생했다.
+
+---
 
 # 10. 선택 실습 — 취소와 좌석 복구
 
@@ -671,7 +673,7 @@ COMMIT;
 
 ---
 
-status·created_at 같은 필수 열은실제 DDL에 기본값을 정의하거나 INSERT에 추가해야 한다. 인증 ID는 서버에서 전달하며 사용자가 보낸 임의 회원 ID를 신뢰하지 않는다. 네트워크 장애로 COMMIT 응답을 못 받은 경우 재요청 정책은 별도 설계가 필요하다.
+status·created_at 같은 필수 열은 실제 DDL에 기본값을 정의하거나 INSERT에 추가해야 한다. 인증 ID는 서버에서 전달하며 사용자가 보낸 임의 회원 ID를 신뢰하지 않는다. 네트워크 장애로 COMMIT 응답을 못 받은 경우 재요청 정책은 별도 설계가 필요하다.
 
 # 13. AI를 트랜잭션 리뷰어로 활용
 
@@ -680,10 +682,6 @@ AI에게 완성 SQL부터 요구하지 않습니다.
 ## 13-1. 사용한 프롬프트
 
 ```text
-실제 작성·검증 요청:
-“실제 나의 답변도 작성해주고”
-“캡쳐해야 할 화면 및 캡쳐화면 저장 제목 알려달라고”
-
 리뷰 범위: 공식 SQL의 업무 경계, 영향 행 수, COMMIT/ROLLBACK 조건, 두 세션 경쟁, 신청·결제·좌석 정합성 및 개인 프로젝트 트랜잭션 설계를 검토했다. 개인 프로젝트는 구현 전이므로 SQL 설계의 논리 검토와 실습 DB 실행 검증을 구분했다.
 ```
 
