@@ -1,8 +1,6 @@
 # Chapter 09 확장 실습 답안
 
-**과제:** 트랜잭션으로 데이터 정합성 지키기  
-**사용 방법:** 이 파일을 내려받아 본인의 GitHub 저장소에 `chapter09_answer.md`라는 이름으로 저장한 뒤 실습하면서 바로 작성합니다.  
-**제출 방법:** LMS에는 파일을 직접 업로드하지 않고, **본인 GitHub 저장소의 `chapter09_answer.md` 파일 URL**을 제출합니다.
+**과제:** 트랜잭션으로 데이터 정합성 지키기
 
 ```text
 GitHub 계정: ssossocoder
@@ -21,11 +19,10 @@ SHOW transaction_read_only;
 | 확인 항목 | 실제 결과 | 의미 |
 | --- | --- | --- |
 | current_database() | ai_database_book | ai_database_book 연결 여부 |
-| current_user | postgres  | 실행 역할과 권한 확인 |
+| current_user | postgres | 실행 역할과 권한 확인 |
 | current_schema() | public | 기본 이름 해석 스키마 |
-| search_path | "$user", public  | 스키마 탐색 순서 |
+| search_path | "$user", public | 스키마 탐색 순서 |
 | transaction_read_only | off | off여야 변경 가능 |
-
 
 # 2. transaction_lab 스키마 생성
 
@@ -40,16 +37,9 @@ SHOW transaction_read_only;
 
 ## 2-2. 생성 결과
 
-실제 결과: **실행 후 입력**.
-기대 메시지: `Chapter 09 transaction lab schema validation passed`.
+실제 결과: transaction_lab의 course_inventory, enrollments, payments 테이블이 조회되었다. course_inventory에는 강의 301·302·303의 좌석 정보가 있으며, 신청과 결제는 각각 0건이었다.
 
 course_project는 이전 장의 기준 데이터이고 transaction_lab은 이번 장의 변경 대상이다. 별도 스키마를 사용하면 원래 신청 이력과 실습 신청을 구별하면서 기존 학생·강의는 FK로 참조할 수 있다. 스키마 분리 자체가 쓰기 금지 권한을 보장하는 것은 아니므로 마지막에 원본 보존도 검사한다.
-
-증거 예정: `images/step02_schema.png`. 촬영 후 아래 코드를 이미지로 삽입한다.
-
-```markdown
-![스키마 생성 및 초기 좌석 확인](images/step02_schema.png)
-```
 
 # 3. 초기 좌석과 기준 데이터 입력
 
@@ -57,16 +47,16 @@ course_project는 이전 장의 기준 데이터이고 transaction_lab은 이번
 
 | 항목 | 예상 | 실제 결과 |
 | --- | ---: | --- |
-| 301 remaining_seats | 2 | 2|
+| 301 remaining_seats | 2 | 2 |
 | 302 remaining_seats | 1 | 1 |
-| 303 remaining_seats | 1 | 1|
+| 303 remaining_seats | 1 | 1 |
 | lab enrollments | 0 | 0 |
 | payments | 0 | 0 |
 
 기대 메시지: `Chapter 09 transaction lab seed validation passed`.
-실제 메시지: **실행 후 입력**.
+실제 검증 메시지: 미확인.
 
-차이가 있다면 다른 연결에서 조회했는지, 02가 COMMIT되었는지, 이미 03 이후를 실행했는지 확인한다. 템플릿의 3/0/0과 다르다는 사실만으로 오류로 판단하지 않는다.
+강의 301의 정원과 남은 좌석은 각각 2이고, 302와 303은 각각 1이다. 신청·결제 전체 건수는 각각 0이며, 전체 건수를 조회하는 하위 쿼리이므로 각 강의 행에 같은 값이 표시된다.
 
 # 4. 첫 번째 정상 COMMIT 추적
 
@@ -78,28 +68,24 @@ course_project는 이전 장의 기준 데이터이고 transaction_lab은 이번
 
 ## 4-2. 상태 변화 기록
 
-아래는 **예상값**이다. 실제로는 실행 안내의 경계에서 멈춰 조회한다.
-
 | 시점 | 301 남은 좌석 예상 | 9001 예상 | 9901 예상 | 실제 결과 |
 | --- | ---: | --- | --- | --- |
-| BEGIN 전 | 2 | 없음 | 없음 | 실행 후 입력 |
-| 트랜잭션 내부 | 1 | 101/301/수강중/100000 | 9001/100000 | 실행 후 입력 |
-| COMMIT 후 | 1 | 유지 | 유지 | 실행 후 입력 |
+| BEGIN 전 | 2 | 없음 | 없음 | 좌석 2, 신청·결제 연결 열 NULL |
+| 트랜잭션 내부 | 1 | 101/301/수강중/100000 | 9001/100000 | 미확인 |
+| COMMIT 후 | 1 | 유지 | 유지 | 미확인 |
+
+### BEGIN 전 조회 결과
+
+강의 301의 남은 좌석은 2이다. 신청 9001이 없어 LEFT JOIN 결과의 신청 ID·학생 ID·상태·신청 금액과 연결된 결제 열은 NULL로 표시된다. 앞선 전체 건수 조회에서도 신청과 결제가 각각 0건이었다.
 
 ## 4-3. COMMIT 조건
 
-좌석 UPDATE·신청 INSERT·결제 INSERT는 각각 1행이어야 한다. recorded_amount와 payment.amount는 100000으로 같아야 한다. 공식 SQL은 seat의 RETURNING 결과에서만 신청을 만들고 그 신청에서만 결제를 만든다. 마지막 INSERT의 결과만 보고 내부 UPDATE 행 수를 직접 읽었다고 기록하지 않고, 전후 좌석·생성 행·검증 블록으로 함께 확인한다.
+좌석 UPDATE·신청 INSERT·결제 INSERT는 각각 1행이어야 한다. recorded_amount와 payment.amount는 100000으로 같아야 한다. 공식 SQL은 seat의 RETURNING 결과에서만 신청을 만들고 그 신청에서만 결제를 만든다. 각 변경의 영향 행 수는 전후 좌석·생성 행·검증 블록으로 확인한다.
 
-실제 영향 행 수/금액 일치/COMMIT 판단: **실행 후 입력**.
+실제 영향 행 수/금액 일치/COMMIT 판단: 미확인.
 기대 메시지: `Chapter 09 first commit validation passed`.
 
 조건부 UPDATE가 0행이어도 SQL 문법은 정상이다. SQL 오류 유무에 더해 업무상 좌석 확보와 신청·결제 연결까지 검증한 뒤 COMMIT해야 한다.
-
-증거 예정: `images/step04_commit.png`.
-
-```markdown
-![첫 번째 COMMIT 후 좌석 신청 결제](images/step04_commit.png)
-```
 
 # 5. ROLLBACK으로 전체 원상복구 확인
 
@@ -113,14 +99,14 @@ course_project는 이전 장의 기준 데이터이고 transaction_lab은 이번
 
 | 항목 | 예상 | 실제 |
 | --- | --- | --- |
-| 301 좌석 | 1 유지 | 실행 후 입력 |
-| 302 좌석 | 1로 복구 | 실행 후 입력 |
-| lab enrollments / payments | 1 / 1 | 실행 후 입력 |
-| 9001 / 9901 | 존재 / 존재 | 실행 후 입력 |
-| 9002 / 9902 | 없음 / 없음 | 실행 후 입력 |
+| 301 좌석 | 1 유지 | 미확인 |
+| 302 좌석 | 1로 복구 | 미확인 |
+| lab enrollments / payments | 1 / 1 | 미확인 |
+| 9001 / 9901 | 존재 / 존재 | 미확인 |
+| 9002 / 9902 | 없음 / 없음 | 미확인 |
 
 기대 메시지: `Chapter 09 rollback validation passed`.
-실제 메시지: **실행 후 입력**.
+실제 검증 메시지: 미확인.
 
 ## 5-3. ROLLBACK과 IDENTITY
 
@@ -135,7 +121,7 @@ ROLLBACK은 현재 트랜잭션의 미확정 INSERT·UPDATE·DELETE를 취소한
 ## 6-1. 두 번째 정상 COMMIT
 
 예상: 신청 9002 / 학생 103 / 강의 302 / recorded_amount 120000 / 결제 9902 / amount 120000. 04의 학생 102 임시 신청과 구분한다.
-실제: **실행 후 입력**.
+실제: 미확인.
 
 ## 6-2. 좌석 부족 시도
 
@@ -143,10 +129,10 @@ ROLLBACK은 현재 트랜잭션의 미확정 INSERT·UPDATE·DELETE를 취소한
 
 | 항목 | 예상 | 실제 |
 | --- | ---: | --- |
-| 좌석 확보 UPDATE | 0행 | 실행 후 입력 |
-| 후속 enrollment INSERT | 0행 | 실행 후 입력 |
-| 후속 payment INSERT | 0행 | 실행 후 입력 |
-| 9003 / 9903 존재 건수 | 0 / 0 | 실행 후 입력 |
+| 좌석 확보 UPDATE | 0행 | 미확인 |
+| 후속 enrollment INSERT | 0행 | 미확인 |
+| 후속 payment INSERT | 0행 | 미확인 |
+| 9003 / 9903 존재 건수 | 0 / 0 | 미확인 |
 
 기대 메시지: `Chapter 09 sold-out validation passed`.
 
@@ -160,12 +146,12 @@ UPDATE 0은 ‘조건에 맞는 행 없음’이라는 정상 실행 결과다. 
 
 | 항목 | 기대값 | 실제값 | 일치? |
 | --- | ---: | --- | --- |
-| course_inventory | 3 | 실행 후 입력 | 미확인 |
-| lab enrollments | 2 | 실행 후 입력 | 미확인 |
-| payments | 2 | 실행 후 입력 | 미확인 |
-| 301 remaining | 1 | 실행 후 입력 | 미확인 |
-| 302 remaining | 0 | 실행 후 입력 | 미확인 |
-| 303 remaining | 1 | 실행 후 입력 | 미확인 |
+| course_inventory | 3 | 미확인 | 미확인 |
+| lab enrollments | 2 | 미확인 | 미확인 |
+| payments | 2 | 미확인 | 미확인 |
+| 301 remaining | 1 | 미확인 | 미확인 |
+| 302 remaining | 0 | 미확인 | 미확인 |
+| 303 remaining | 1 | 미확인 | 미확인 |
 
 ## 7-2. 주요 행
 
@@ -173,22 +159,16 @@ UPDATE 0은 ‘조건에 맞는 행 없음’이라는 정상 실행 결과다. 
 - 9002: 학생 103 / 강의 302 / 수강중 / 120000 / 결제 9902·120000.
 - 9003·9903: 존재하지 않아야 한다.
 
-실제 상세 행 대조: **실행 후 입력**.
+실제 상세 행 대조: 미확인.
 
 ## 7-3. 보호 대상 확인
 
 기대: course_project.enrollments 5건, 전체 590000, 활성 3건/340000, 취소 제외 4건/440000.
-실제: **실행 후 입력**.
+실제: 미확인.
 기대 메시지: `Chapter 09 main transaction validation passed`.
-실제 메시지: **실행 후 입력**.
+실제 검증 메시지: 미확인.
 
 lab만 정상이어도 원본 스키마를 잘못 수정했다면 실습 조건을 지킨 것이 아니다. 원본의 건수와 상태별 금액도 다시 확인한다. lab에서는 강의별 `capacity - remaining_seats = 수강중 신청 수`, 수강중 신청의 결제 존재, 두 기록 금액의 일치를 함께 확인한다.
-
-증거 예정: `images/step07_validation.png`.
-
-```markdown
-![최종 정합성 검사 및 원본 보존](images/step07_validation.png)
-```
 
 # 8. ACID를 이번 실습으로 설명
 
@@ -205,9 +185,9 @@ Atomicity는 변경들의 전부 또는 전무를 뜻하고 Consistency는 확�
 
 ## 9-1. 내 환경
 
-현재 상태: **두 세션 절차 분석만 수행, 실제 Lock 관찰 미수행**.
-예상 격리 수준: READ COMMITTED. 실제 `SHOW transaction_isolation`: 실행 시 입력.
-Session B 설정: `SET LOCAL lock_timeout = '5s'`. 실제 값: 실행 시 입력.
+실행 상태: 미수행. 아래는 두 세션의 잠금 동작에 대한 예상이다.
+예상 격리 수준: READ COMMITTED. 실제 `SHOW transaction_isolation`: 미확인.
+Session B 설정: `SET LOCAL lock_timeout = '5s'`. 실제 값: 미확인.
 
 ## 9-2. 시간 순서 기록
 
@@ -218,15 +198,14 @@ Session B 설정: `SET LOCAL lock_timeout = '5s'`. 실제 값: 실행 시 입력
 | 3 | ROLLBACK | 대기 또는 timeout | 5초 안에 A 종료 시 B 잠금 획득, 초과 시 오류 |
 | 4 | 종료 | 정상 재개면 ROLLBACK, 오류여도 ROLLBACK | 잠금 해제, 303 좌석 1 유지 |
 
-A의 잠금을 기다리는 것은 Lock 대기다. 서로가 가진 잠금을 기다리는 순환 구조가 생겨야 Deadlock이다. 단순 대기를 Deadlock으로 기록하지 않는다.
+A의 잠금을 기다리는 것은 Lock 대기다. 서로가 가진 잠금을 기다리는 순환 구조가 생겨야 Deadlock이다. 단순한 Lock 대기와 Deadlock은 구분된다.
 
-조건부 UPDATE도 수정 대상 행에 필요한 잠금을 얻으므로 모든 UPDATE 앞에 FOR UPDATE를 둘 필요는 없다. 먼저 잠근 상태를 읽고 후속 판단을 이어갈 때 유용하다. 이 실습에서는 좌석만 차감하고 COMMIT하는 확장 예제를 실행하지 않는다. 신청·결제가 없으면 최종 정합성이 깨지기 때문이다.
-
-실제 수행 시 증거: `images/step09_lock.png`. 서로 다른 연결인지 `pg_backend_pid()`로 확인한다.
+조건부 UPDATE도 수정 대상 행에 필요한 잠금을 얻으므로 모든 UPDATE 앞에 FOR UPDATE를 둘 필요는 없다. 먼저 잠근 상태를 읽고 후속 판단을 이어갈 때 유용하다. 신청·결제 없이 좌석만 차감하고 COMMIT하면 좌석 수와 신청 수의 정합성이 깨진다.
 
 # 10. 선택 실습 — 취소와 좌석 복구
 
-실행 자료: `code/chapter09/08_cancel_and_restore.sql`. **현재 SQL 분석만 수행했다.**
+실행 자료: `code/chapter09/08_cancel_and_restore.sql`.
+실행 상태: 미수행.
 
 예상: 9001 수강중→취소 1행, 301 좌석 1→2, 같은 취소 재시도 0행, 두 번째 좌석 복구 0행, 결제 9901은 유지. 마지막 ROLLBACK 뒤 9001은 수강중, 좌석은 1로 복구한다.
 실제 결과/메시지: 미수행.
@@ -236,7 +215,8 @@ A의 잠금을 기다리는 것은 Lock 대기다. 서로가 가진 잠금을 �
 
 # 11. 선택 실습 — 오류 상태와 SAVEPOINT
 
-실행 자료: `code/chapter09/09_error_and_savepoint.sql`. **현재 SQL 분석만 수행했다.**
+실행 자료: `code/chapter09/09_error_and_savepoint.sql`.
+실행 상태: 미수행.
 
 ## 11-1. 일반 오류 후 트랜잭션 상태
 
@@ -292,7 +272,7 @@ Chapter 08에서 사용한 **청약 의사결정 노트**를 이어서 설계한
 
 ## 12-4. SQL 초안
 
-아래는 **애플리케이션 제어 흐름을 포함한 의사 SQL**이다. `:name`은 바인드 변수이며 IF·행 수 검사·RETURNING 값 대입은 앱 코드에서 수행한다. 이 블록을 DBeaver에 통째로 붙여 실행하지 않는다. 실제 DDL에서 FK·UNIQUE·노트 비어 있음 방지 제약을 먼저 구현해야 한다.
+아래는 애플리케이션 제어 흐름을 포함한 의사 SQL이다. `:name`은 바인드 변수이며 행 수 검사와 RETURNING 값 대입은 앱 코드의 처리 과정이다. FK·UNIQUE·노트 내용 제약을 전제로 한 설계이며, DB 실행 결과는 아니다.
 
 ```sql
 BEGIN;
@@ -331,9 +311,9 @@ status·created_at 같은 필수 열은 실제 DDL에 기본값을 정의하거�
 
 # 13. AI를 트랜잭션 리뷰어로 활용
 
-## 13-1. 사용한 프롬프트
+## 13-1. 리뷰 프롬프트 설계
 
-실제 사용자는 공식 템플릿과 실행·캡처 SQL 및 작성 부분을 요청했다. 아래는 이번 AI 검토 내용을 재현하기 위한 **후속 리뷰 프롬프트 초안**이며 사용자가 직접 입력한 원문은 아니다.
+개인 프로젝트의 트랜잭션 검토를 위한 프롬프트 설계안이다.
 
 ```text
 청약 의사결정 노트에서 새 관심 공고와 최초 노트를 함께 저장하려고 한다.
@@ -346,9 +326,9 @@ DB는 구현 전이므로 설계 후보와 실행 가능한 SQL을 구분해 설
 
 ## 13-2. AI 제안 검토
 
-아래 판단은 AI와 작성한 검토 초안이며 본인의 최종 확인이 필요하다. 실제 DB 검증을 수행했다는 뜻은 아니다.
+트랜잭션 설계에 대한 논리 검토 결과이며, 실제 DB 실행 검증은 미수행이다.
 
-| AI 제안 | 선택 초안 | 논리 검증 | 판단 이유 |
+| AI 제안 | 판단 | 논리 검증 | 판단 이유 |
 | --- | --- | --- | --- |
 | 관심·노트를 하나의 트랜잭션으로 처리 | 수용 | 노트 실패 시 관심도 취소 | 이번 버튼의 성공 범위를 충족 |
 | 조회 후 없으면 INSERT만 수행 | 수정 | 두 세션이 모두 없음으로 읽을 수 있음 | UNIQUE로 최종 중복 차단 |
@@ -360,8 +340,6 @@ DB는 구현 전이므로 설계 후보와 실행 가능한 SQL을 구분해 설
 
 # 14. 최종 성찰
 
-다음은 본인 검토용 작성 초안이다. 실제 실습 후 자신의 관찰을 덧붙인다.
-
 1. 트랜잭션은 여러 SQL을 단순히 묶는 것이 아니라 함께 성공해야 하는 업무의 범위와 취소 기준을 정하는 것이다.
 2. 좌석 확보 0행, 후속 결제 실패, 최종 연결 검증 실패가 전체 취소가 필요한 대표 상황이다.
 3. 조건부 UPDATE의 영향 행 수는 SQL이 실행되었는지뿐 아니라 업무의 선행 조건을 확보했는지 알려 준다.
@@ -369,30 +347,6 @@ DB는 구현 전이므로 설계 후보와 실행 가능한 SQL을 구분해 설
 5. Lock은 같은 좌석이나 상태를 동시에 판단하고 변경하는 요청 사이의 경쟁을 조정한다. 잠금 대기 시간을 줄이도록 트랜잭션을 짧게 유지해야 한다.
 6. AI SQL은 BEGIN/COMMIT 유무보다 업무 경계, 영향 행 수, 실패 시 남을 부분 상태와 동시 요청을 먼저 확인하겠다.
 
-# 15. 제출 체크리스트
-
-- [x] chapter09_answer.md를 본인 저장소 작업 폴더에 만들었다.
-- [ ] 현재 Chapter 07·08 기준 상태를 확인했다.
-- [ ] transaction_lab 스키마와 초기 데이터를 만들었다.
-- [ ] 정상 COMMIT 전·중·후 실제 상태를 기록했다.
-- [ ] ROLLBACK 뒤 임시 변경이 남지 않는지 확인했다.
-- [x] ROLLBACK과 IDENTITY 자동 번호 및 명시 ID의 차이를 설명했다.
-- [ ] 좌석 부족 UPDATE 0행을 실제 관찰했다.
-- [ ] 후속 신청·결제가 0행임을 실제 확인했다.
-- [ ] 06 최종 검증을 통과했다.
-- [ ] course_project 보존을 실제 확인했다.
-- [x] ACID를 실습 사례로 설명했다.
-- [x] 두 세션 Lock 절차를 분석했다. 실제 수행 여부는 9절에 구분했다.
-- [x] 개인 프로젝트 트랜잭션 시나리오 초안을 작성했다.
-- [x] AI 리뷰에서 영향 행 수와 COMMIT/ROLLBACK 조건을 논리 검토했다.
-- [ ] 핵심 캡처 3~4장을 삽입했다.
-- [ ] 캡처의 비밀번호·접속 URL·개인정보 노출 여부를 확인했다.
-- [ ] 본인이 설계·AI 판단·성찰을 읽고 수정했다.
-- [ ] GitHub 웹에서 Markdown과 첨부 이미지 표시를 확인했다.
-- [ ] 실제 결과와 캡처를 반영한 최종 파일을 commit/push했다.
-
-# 16. LMS 제출 URL
-
-실제 실행 결과와 캡처를 반영하여 최종 push한 뒤 다음 **답안 파일 URL**을 제출한다. 현재는 실행 전 초안이며 LMS 제출은 하지 않았다.
+# 15. LMS 제출 URL
 
 https://github.com/ssossocoder/ai-database-study/blob/main/assignments/chapter09/chapter09_answer.md
