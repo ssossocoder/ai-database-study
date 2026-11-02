@@ -57,6 +57,10 @@ enrollments = 5
 실제 확인: students 3, instructors 2, courses 3, enrollments 5, 전체 590000, 활성 3/340000, 취소 제외 4/440000으로 기준과 일치했다.
 ```
 
+### 증거 화면
+
+![시작 환경과 기준 상태 확인](images/step01_environment.png)
+
 ---
 
 # 2. `transaction_lab` 스키마 생성
@@ -197,6 +201,8 @@ code/chapter09/03_commit_transaction.sql
 
 ![BEGIN 전 좌석 2와 신청·결제 없음](images/step04_before_begin.png)
 
+### 증거 화면
+
 ## 4-3. COMMIT 조건
 
 ```text
@@ -231,7 +237,7 @@ assignments/chapter09/images/step04_commit.png
 
 `여기에 COMMIT 후 좌석·신청·결제 관계를 확인할 수 있는 화면을 삽입하세요.`
 
-![COMMIT 후 좌석·신청·결제 관계 재조회](images/step04_commit.png)
+![COMMIT 후 좌석·신청·결제 관계](images/step04_commit.png)
 
 신청 9001은 학생 101·강의 301의 수강중 신청이며, 신청 금액과 결제 9901의 금액은 모두 100000이다. 잔여 좌석은 1이고 matched는 true이다. 첫 COMMIT 당시와 이후 재조회 결과가 일치했다.
 
@@ -271,6 +277,10 @@ ROLLBACK 후 payments 행 수: 1
 ```text
 Chapter 09 rollback validation passed
 ```
+
+### 증거 화면
+
+![ROLLBACK 후 좌석 복구와 기존 신청·결제 유지](images/step05_rollback.png)
 
 ## 5-3. ROLLBACK과 IDENTITY
 
@@ -334,6 +344,10 @@ UPDATE 0은 조건에 맞는 행이 없다는 정상적인 SQL 실행 결과이�
 좌석을 확보하지 못했는데 별도의 VALUES로 신청과 결제를 넣으면 좌석 없는 신청과 결제가 생겨 정원을 초과할 수 있다. 공식 SQL은 좌석 확보 RETURNING 행을 신청과 결제의 입력으로 연결하므로 앞 단계가 0행이면 후속 INSERT도 0행이다.
 ```
 
+### 증거 화면
+
+![좌석 부족 시 신청·결제 0행 및 검증 결과](images/step06_sold_out.png)
+
 ---
 
 # 7. 주 실습 최종 정합성 검증
@@ -370,6 +384,10 @@ code/chapter09/06_transaction_validation.sql
 강의 303: 남은 좌석 1, 연결된 신청과 결제 없음.
 신청과 결제가 있는 두 행의 matched는 모두 true이다.
 ```
+
+### 증거 화면
+
+![최종 좌석·신청·결제 상세와 금액 일치](images/step07_final_rows.png)
 
 ## 7-3. 보호 대상 확인
 
@@ -416,6 +434,10 @@ assignments/chapter09/images/step07_validation.png
 ![주 실습 최종 정합성 검증 통과](images/step07_validation.png)
 
 최종 검증에서 원본 데이터 보존, 좌석·신청·결제 정합성, 9003·9903 부재가 확인되었다. 선택 실습을 마친 후에도 같은 검증을 다시 통과했다.
+
+### 증거 화면
+
+![course_project 기준 건수와 금액 보존](images/step07_project_preserved.png)
 
 # 8. ACID를 이번 실습으로 설명
 
@@ -534,6 +556,10 @@ course 301 remaining 1 → 2
 이미 취소된 신청을 다시 처리할 때 좌석까지 늘리면 실제 정원보다 많은 좌석이 판매 가능 상태가 된다. 취소 성공 UPDATE의 RETURNING 행만 좌석 복구 입력으로 전달해야 한다. 결제 이력 보존과 외부 환불은 별도 업무이다.
 ```
 
+### 증거 화면
+
+![취소 실습 ROLLBACK 후 기존 신청·결제 유지](images/step10_cancel.png)
+
 ---
 
 # 11. 선택 실습 — 오류 상태와 SAVEPOINT
@@ -552,6 +578,12 @@ code/chapter09/09_error_and_savepoint.sql
 전체 ROLLBACK이 필요한 이유: 오류 상태의 트랜잭션에서는 일반 SQL을 계속 실행할 수 없고, 저장점이 없으므로 전체를 취소해야 한다. ROLLBACK 후 임시 좌석 차감이 취소되어 강의 301 좌석은 1로 복구되었다.
 ```
 
+### 증거 화면
+
+![중복 활성 신청 고유 제약 오류 23505](images/step11_duplicate_error.png)
+
+![오류 후 SELECT의 트랜잭션 중단 오류 25P02](images/step11_aborted.png)
+
 ## 11-2. SAVEPOINT 사용
 
 ```text
@@ -566,6 +598,10 @@ ROLLBACK TO SAVEPOINT 후 상태: 강의 301 remaining_seats 1, 신청 9003 존�
 ```text
 SAVEPOINT는 같은 트랜잭션의 특정 시점 이후 변경만 취소하고 트랜잭션을 계속할 수 있게 한다. 전체 ROLLBACK은 현재 트랜잭션의 모든 미확정 변경을 취소하고 트랜잭션을 끝낸다. 저장점 이전 변경이 자동으로 COMMIT되는 것은 아니다.
 ```
+
+### 증거 화면
+
+![SAVEPOINT 복구 후 좌석 1과 신청 9003 없음](images/step11_savepoint.png)
 
 ---
 
