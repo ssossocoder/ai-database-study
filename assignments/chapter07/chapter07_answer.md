@@ -1,6 +1,8 @@
-# Chapter 07 확장 실습 답안 — 온라인 강의 수강신청 DB 완성하기
+# Chapter 07 확장 실습 답안
 
-> **작성 상태:** 스키마 생성, Seed 기준 상태, 변경 결과, 경계·실패 테스트와 실패 후 공식 Validation 재검증을 확인했다. 실행 캡처 4장을 첨부했다. Seed는 간소화 입력 SQL을 사용해 별도 seed passed 메시지는 출력하지 않았다. 초기화 재현성 실험은 수행하지 않았다. 개인 프로젝트 설계·AI 판단·성찰은 제출 전 본인이 최종 확인한다.
+**과제:** 온라인 강의 수강신청 DB 완성하기  
+**사용 방법:** 이 파일을 내려받아 본인의 GitHub 저장소에 `chapter07_answer.md`라는 이름으로 저장한 뒤 실습하면서 바로 작성합니다.  
+**제출 방법:** LMS에는 파일을 직접 업로드하지 않고, **본인 GitHub 저장소의 `chapter07_answer.md` 파일 URL**을 제출합니다.
 
 공식 자료: [답안 템플릿](https://github.com/GilbertMoon/ai-database-book/blob/main/assignments/chapter07/chapter07_answer_template.md), [프로젝트 결정 기록](../../code/chapter07/PROJECT_DECISIONS.md), [실행 안내](../../code/chapter07/README.md). SQL은 공식 저장소의 Chapter 07 파일을 가져왔으며 실행 결과를 대신하지 않는다.
 
