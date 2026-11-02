@@ -10,12 +10,6 @@ GitHub 계정: ssossocoder
 사용한 AI 도구: Codex
 ```
 
-공식 [답안 템플릿](https://github.com/GilbertMoon/ai-database-book/blob/main/assignments/chapter09/chapter09_answer_template.md)과 [실습 SQL](https://github.com/GilbertMoon/ai-database-book/tree/main/code/chapter09)을 기준으로 작성했다. 실행 순서·캡처 위치와 확인 SQL은 별도로 제공받은 실습 자료를 참고한다. 공식 실행 파일은 위 실습 SQL 링크에서 내려받는다. 이 저장소에는 답안과 증거 이미지만 관리한다.
-
-**공식 자료의 불일치:** 템플릿 3절과 공식 README는 초기 좌석을 `3/0/0`으로 설명하지만, 실제 `02_transaction_lab_seed.sql`의 INSERT와 검증은 `2/1/1`이다. `03`도 301의 시작 좌석 2를 요구한다. 따라서 이 답안은 실제 실행 파일을 기준으로 초기 `2/1/1`, 최종 `1/0/1`을 사용한다. SQL을 템플릿 수치에 맞춰 임의 수정하지 않는다.
-
-비밀번호·전체 접속 URL·API Key·실제 개인정보는 기록하지 않는다.
-
 # 1. 시작 환경과 Chapter 07·08 기준 상태 확인
 
 ```sql
@@ -26,15 +20,12 @@ SHOW transaction_read_only;
 
 | 확인 항목 | 실제 결과 | 의미 |
 | --- | --- | --- |
-| current_database() | 실행 후 입력 | ai_database_book 연결 여부 |
-| current_user | 실행 후 입력 | 실행 역할과 권한 확인 |
-| current_schema() | 실행 후 입력 | 기본 이름 해석 스키마 |
-| search_path | 실행 후 입력 | 스키마 탐색 순서 |
-| transaction_read_only | 실행 후 입력 | off여야 변경 가능 |
+| current_database() | ai_database_book | ai_database_book 연결 여부 |
+| current_user | postgres  | 실행 역할과 권한 확인 |
+| current_schema() | public | 기본 이름 해석 스키마 |
+| search_path | "$user", public  | 스키마 탐색 순서 |
+| transaction_read_only | off | off여야 변경 가능 |
 
-Chapter 08에서 확인한 기준은 학생 3 / 강사 2 / 강의 3 / 신청 5, 전체 기록 금액 590000, 활성 3건/340000, 취소 제외 4건/440000이다. **현재 DB도 같은지는 01의 사전 게이트로 다시 확인한다.**
-
-기준이 다르면 결과 차이가 트랜잭션 때문인지 시작 데이터 때문인지 구분할 수 없다. 특히 1001=완료, 1004=취소, 1005=신청 등 상세 상태도 맞아야 한다. 게이트에서 실패하면 다음 파일로 넘어가지 않고 원인을 확인한다.
 
 # 2. transaction_lab 스키마 생성
 
@@ -66,11 +57,11 @@ course_project는 이전 장의 기준 데이터이고 transaction_lab은 이번
 
 | 항목 | 예상 | 실제 결과 |
 | --- | ---: | --- |
-| 301 remaining_seats | 2 | 실행 후 입력 |
-| 302 remaining_seats | 1 | 실행 후 입력 |
-| 303 remaining_seats | 1 | 실행 후 입력 |
-| lab enrollments | 0 | 실행 후 입력 |
-| payments | 0 | 실행 후 입력 |
+| 301 remaining_seats | 2 | 2|
+| 302 remaining_seats | 1 | 1 |
+| 303 remaining_seats | 1 | 1|
+| lab enrollments | 0 | 0 |
+| payments | 0 | 0 |
 
 기대 메시지: `Chapter 09 transaction lab seed validation passed`.
 실제 메시지: **실행 후 입력**.
