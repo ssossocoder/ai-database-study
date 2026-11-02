@@ -10,7 +10,7 @@ GitHub 계정: ssossocoder
 사용한 AI 도구: Codex
 ```
 
-공식 [답안 템플릿](https://github.com/GilbertMoon/ai-database-book/blob/main/assignments/chapter09/chapter09_answer_template.md)과 [실습 SQL](https://github.com/GilbertMoon/ai-database-book/tree/main/code/chapter09)을 기준으로 작성했다. 실행 순서·캡처 위치는 [실행 안내](chapter09_runbook.md), 복사할 확인 SQL은 [캡처 SQL](chapter09_capture.sql)을 참고한다.
+공식 [답안 템플릿](https://github.com/GilbertMoon/ai-database-book/blob/main/assignments/chapter09/chapter09_answer_template.md)과 [실습 SQL](https://github.com/GilbertMoon/ai-database-book/tree/main/code/chapter09)을 기준으로 작성했다. 실행 순서·캡처 위치와 확인 SQL은 별도로 제공받은 실습 자료를 참고한다. 공식 실행 파일은 위 실습 SQL 링크에서 내려받는다. 이 저장소에는 답안과 증거 이미지만 관리한다.
 
 **공식 자료의 불일치:** 템플릿 3절과 공식 README는 초기 좌석을 `3/0/0`으로 설명하지만, 실제 `02_transaction_lab_seed.sql`의 INSERT와 검증은 `2/1/1`이다. `03`도 301의 시작 좌석 2를 요구한다. 따라서 이 답안은 실제 실행 파일을 기준으로 초기 `2/1/1`, 최종 `1/0/1`을 사용한다. SQL을 템플릿 수치에 맞춰 임의 수정하지 않는다.
 
