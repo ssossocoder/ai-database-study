@@ -106,7 +106,9 @@ course_project는 이전 장의 기준 데이터이고 transaction_lab은 이번
 assignments/chapter09/images/step02_schema.png
 ```
 
+```markdown
 ![transaction_lab의 세 테이블 구조](images/step02_schema.png)
+```
 
 transaction_lab에 course_inventory, enrollments, payments 세 테이블이 조회되었다.
 
@@ -192,6 +194,8 @@ code/chapter09/03_commit_transaction.sql
 | 트랜잭션 내부 | 1 | 101/301/수강중/100000 | 9001/100000 | COMMIT 전 같은 세션에서 조회 |
 | COMMIT 후 | 1 | 유지 | 유지 | 첫 COMMIT 검증 통과, 이후 ROLLBACK 후에도 유지 |
 
+![BEGIN 전 좌석 2와 신청·결제 없음](images/step04_before_begin.png)
+
 ## 4-3. COMMIT 조건
 
 ```text
@@ -224,22 +228,11 @@ Chapter 09 first commit validation passed
 assignments/chapter09/images/step04_commit.png
 ```
 
+```markdown
 ![COMMIT 후 좌석·신청·결제 관계 재조회](images/step04_commit.png)
+```
 
 신청 9001은 학생 101·강의 301의 수강중 신청이며, 신청 금액과 결제 9901의 금액은 모두 100000이다. 잔여 좌석은 1이고 matched는 true이다. 첫 COMMIT 당시와 이후 재조회 결과가 일치했다.
-
-<details>
-<summary>BEGIN 전·트랜잭션 내부·COMMIT 통과 증거</summary>
-
-![BEGIN 전 좌석 2와 신청·결제 없음](images/step04_before_begin.png)
-
-![COMMIT 전 같은 세션에서 조회한 실제 행](images/step04_inside_transaction.png)
-
-내부 조회 행의 열 순서는 enrollment_id, student_id, course_id, status, recorded_amount, payment_id, amount, remaining_seats이다.
-
-![첫 COMMIT 검증 통과](images/step04_commit_validation.png)
-
-</details>
 
 ---
 
@@ -277,13 +270,6 @@ ROLLBACK 후 payments 행 수: 1
 ```text
 Chapter 09 rollback validation passed
 ```
-
-<details>
-<summary>ROLLBACK 검증 증거</summary>
-
-![임시 변경 취소 및 이전 COMMIT 보존 검증 통과](images/step05_rollback.png)
-
-</details>
 
 ## 5-3. ROLLBACK과 IDENTITY
 
@@ -348,13 +334,6 @@ UPDATE 0은 조건에 맞는 행이 없다는 정상적인 SQL 실행 결과이�
 ```
 
 ---
-
-<details>
-<summary>좌석 부족 검증 증거</summary>
-
-![좌석 부족 처리 검증 통과](images/step06_sold_out.png)
-
-</details>
 
 # 7. 주 실습 최종 정합성 검증
 
@@ -427,22 +406,11 @@ lab의 상태가 정상이어도 원본 스키마를 잘못 수정했다면 실�
 
 ### 증거 화면
 
+```markdown
 ![주 실습 최종 정합성 검증 통과](images/step07_validation.png)
+```
 
 최종 검증에서 원본 데이터 보존, 좌석·신청·결제 정합성, 9003·9903 부재가 확인되었다. 선택 실습을 마친 후에도 같은 검증을 다시 통과했다.
-
-<details>
-<summary>최종 좌석·신청·결제 상세 및 원본 보존</summary>
-
-![최종 좌석·신청·결제 상세](images/step07_final_rows.png)
-
-강의 301은 신청·결제 9001/9901과 금액 100000, 강의 302는 9002/9902와 금액 120000으로 연결된다. 두 행의 matched가 true이고 좌석은 1·0·1이다.
-
-![course_project 원본 집계 보존](images/step07_project_preserved.png)
-
-원본은 신청 5건, 전체 590000, 활성 3건/340000, 취소 제외 4건/440000으로 유지되었다.
-
-</details>
 
 # 8. ACID를 이번 실습으로 설명
 
@@ -523,24 +491,11 @@ assignments/chapter09/images/step09_lock.png
 
 ---
 
+```markdown
 ![두 세션 잠금 대기 시간 초과](images/step09_lock.png)
+```
 
 A가 강의 303 행을 잠근 동안 B에서 55P03 lock timeout 오류가 발생했다.
-
-<details>
-<summary>서로 다른 세션·5초 설정·재시도 증거</summary>
-
-![잠금 소유 세션 A](images/step09_session_a.png)
-
-![다른 PID의 세션 B](images/step09_session_b.png)
-
-![세션 B의 lock_timeout 5s](images/step09_timeout_setting.png)
-
-![잠금 해제 후 B의 재시도 결과](images/step09_retry.png)
-
-재시도 결과의 열 순서는 session_b_pid, course_id, remaining_seats이며 값은 14225, 303, 1이다.
-
-</details>
 
 # 10. 선택 실습 — 취소와 좌석 복구
 
@@ -578,10 +533,6 @@ course 301 remaining 1 → 2
 
 ---
 
-### 증거 화면
-
-![취소 재시도 및 ROLLBACK 원상복구 검증 통과](images/step10_cancel.png)
-
 # 11. 선택 실습 — 오류 상태와 SAVEPOINT
 
 실행 파일:
@@ -597,15 +548,6 @@ code/chapter09/09_error_and_savepoint.sql
 오류 이후 다음 SQL 실행 결과: SELECT에서 current transaction is aborted(25P02) 발생.
 전체 ROLLBACK이 필요한 이유: 오류 상태의 트랜잭션에서는 일반 SQL을 계속 실행할 수 없고, 저장점이 없으므로 전체를 취소해야 한다. ROLLBACK 후 임시 좌석 차감이 취소되어 강의 301 좌석은 1로 복구되었다.
 ```
-
-<details>
-<summary>중복 신청 오류와 aborted 상태 증거</summary>
-
-![중복 활성 신청 고유 제약 오류 23505](images/step11_duplicate_error.png)
-
-![오류 후 일반 SELECT의 25P02 오류](images/step11_aborted.png)
-
-</details>
 
 ## 11-2. SAVEPOINT 사용
 
@@ -623,10 +565,6 @@ SAVEPOINT는 같은 트랜잭션의 특정 시점 이후 변경만 취소하고 
 ```
 
 ---
-
-### 증거 화면
-
-![SAVEPOINT 복구 후 좌석 1 및 신청 9003 0건](images/step11_savepoint.png)
 
 # 12. 개인 프로젝트 트랜잭션 시나리오 설계
 
@@ -818,9 +756,9 @@ SQL 오류가 없어도 선행 조건을 충족하지 못한 UPDATE 0행일 수 
 - [x] Lock 실습 또는 두 세션 절차 분석을 수행했다.
 - [x] 개인 프로젝트 트랜잭션 시나리오를 작성했다.
 - [x] AI 제안의 COMMIT/ROLLBACK/영향 행 수 검증을 확인했다.
-- [x] 핵심 캡처 4장(스키마·초기 데이터·COMMIT·최종 검증)과 추가 검증 증거를 구분했다.
-- [x] 캡처에 비밀번호·개인정보가 없다.
-- [x] GitHub 웹에서 Markdown과 이미지가 정상적으로 보인다.
+- [ ] 핵심 캡처는 3~4장 정도로 정리했다.
+- [ ] 캡처에 비밀번호·개인정보가 없다.
+- [ ] GitHub 웹에서 Markdown과 이미지가 정상적으로 보인다.
 - [x] 최종 파일을 commit/push했다.
 
 ---
