@@ -91,6 +91,8 @@ SHOW search_path;
 
 `03_baseline_explain.sql`을 후보 인덱스가 없는 상태에서 먼저 실행했다. 자동 인덱스 6개 상태를 확인하고, 아래 세 SQL을 포함한 8개 조회의 최초 계획을 후보 생성 전에 저장했다.
 
+![인덱스 생성 전 자동 인덱스 6개 확인](images/step03_before_indexes.png)
+
 ## Query A — 강의 제목 정확 일치
 
 - 업무 질문: 제목이 정확히 일치하는 강의의 ID·제목·등급·가격은 무엇인가?
@@ -105,6 +107,10 @@ SELECT id, title, level, price
 FROM performance_lab.courses
 WHERE title = '성능 테스트 강의 00500';
 ```
+
+![인덱스 생성 전 강의 제목 검색 실행 계획](images/step04_before_title.png)
+
+화면의 Query A는 Seq Scan, 반환 1행, shared hit 34, Execution Time 0.641ms다. 아래 기준 계획 기록표의 시간은 별도 psql 반복 측정값이다.
 
 ## Query B — 학생별 신청과 학생·강의 정보
 
@@ -142,7 +148,7 @@ WHERE course_id = 1500 AND status = '수강중';
 
 ## 기준 계획 기록표
 
-아래 시간은 반복 측정의 첫 회다.
+아래 시간은 psql 반복 측정의 첫 회다. DBeaver 화면의 단일 실행 시간과는 별도 기록이다.
 
 | 관찰 항목 | Query A | Query B | Query C |
 | --- | --- | --- | --- |
@@ -164,6 +170,8 @@ WHERE course_id = 1500 AND status = '수강중';
 `EXPLAIN ANALYZE`는 SQL을 실제 실행하므로 변경문에 붙이면 데이터도 변경할 수 있다. 이번 비교는 SELECT에만 적용한다. 결과 데이터 대신 계획을 출력하므로 반환 데이터의 정합성은 별도 조회와 최종 Validation으로 확인한다.
 
 ![인덱스 생성 전 학생별 신청 JOIN 실행 계획](images/step04_before_plan.png)
+
+화면의 Query B는 신청 테이블 Seq Scan, 반환 10행, shared hit 769, Execution Time 10.771ms다. 기준 계획 기록표의 2.413ms는 별도 psql 반복 측정의 첫 회다.
 
 # 5. 후보 인덱스를 만들기 전에 이유 작성
 
@@ -268,6 +276,8 @@ Index Scan으로 바뀌었다는 사실만으로 성공을 판정하지 않았�
 | 정렬+LIMIT | 0.242 / 0.231 / 0.230 / 0.228 / 0.231 | 0.010 / 0.010 / 0.006 / 0.006 / 0.006 | 0.231 → 0.006 |
 
 ![인덱스 생성 후 학생별 신청 JOIN 실행 계획](images/step07_after_plan.png)
+
+화면의 Query B는 `idx_performance_enrollments_student_id`를 사용한 Index Scan, 반환 10행, shared hit 36, Execution Time 0.263ms다. 전후 비교표의 중앙값 0.018ms는 별도 psql 5회 반복 측정 결과다.
 
 # 8. status 단독 조회와 Seq Scan 해석
 
@@ -526,7 +536,7 @@ email 단일 인덱스는 UNIQUE와 중복되어 추가하지 않았다. status 
 - [x] `07_result_validation.sql`로 최종 상태를 확인했다.
 - [x] 개인 프로젝트의 반복 조회 2개와 인덱스 후보를 작성했다.
 - [x] AI 제안을 실제 실행 계획과 비교했다.
-- [x] 핵심 캡처 3~4장만 넣었다.
+- [x] 데이터 규모·기준 인덱스·제목 검색·JOIN 전후·최종 검증 화면을 연결했다.
 - [x] 캡처에 비밀번호·개인정보가 없다.
 - [x] GitHub 웹에서 Markdown과 이미지가 정상적으로 보인다.
 - [x] 최종 답안을 commit/push했다.
