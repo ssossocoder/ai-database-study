@@ -142,7 +142,7 @@ WHERE course_id = 1500 AND status = '수강중';
 
 ## 기준 계획 기록표
 
-아래 시간은 터미널 반복 측정의 첫 회다. DBeaver 캡처의 단발 수치와 구분한다.
+아래 시간은 반복 측정의 첫 회다.
 
 | 관찰 항목 | Query A | Query B | Query C |
 | --- | --- | --- | --- |
@@ -164,18 +164,6 @@ WHERE course_id = 1500 AND status = '수강중';
 `EXPLAIN ANALYZE`는 SQL을 실제 실행하므로 변경문에 붙이면 데이터도 변경할 수 있다. 이번 비교는 SELECT에만 적용한다. 결과 데이터 대신 계획을 출력하므로 반환 데이터의 정합성은 별도 조회와 최종 Validation으로 확인한다.
 
 ![인덱스 생성 전 학생별 신청 JOIN 실행 계획](images/step04_before_plan.png)
-
-<details>
-<summary>추가 증거: 인덱스 목록과 제목 검색</summary>
-
-![인덱스 생성 전 자동 인덱스 6개 확인](images/step03_before_indexes.png)
-
-![인덱스 생성 전 강의 제목 검색 실행 계획](images/step04_before_title.png)
-
-</details>
-
-
-DBeaver 캡처의 제목 검색은 0.641ms, JOIN은 10.771ms다. 캡처 재실행에서는 트랜잭션 안에서 후보 인덱스를 잠시 제외해 기준 상태를 재현하고 ROLLBACK으로 복원했다. 최초 기준 계획은 이 재현과 별도로 인덱스 생성 전에 확보했다. 캡처의 단발 시간과 본 측정의 반복값을 섞지 않았다.
 
 # 5. 후보 인덱스를 만들기 전에 이유 작성
 
@@ -280,8 +268,6 @@ Index Scan으로 바뀌었다는 사실만으로 성공을 판정하지 않았�
 | 정렬+LIMIT | 0.242 / 0.231 / 0.230 / 0.228 / 0.231 | 0.010 / 0.010 / 0.006 / 0.006 / 0.006 | 0.231 → 0.006 |
 
 ![인덱스 생성 후 학생별 신청 JOIN 실행 계획](images/step07_after_plan.png)
-
-DBeaver 사후 JOIN 캡처는 10행, shared hit 36, Execution Time 0.263ms, Planning Time 3.663ms다. 계획 수립 시간과 실행 시간을 구분한다. 터미널 JOIN 5회 중앙값 0.018ms와 캡처 단발 시간도 별도 기록으로 유지한다.
 
 # 8. status 단독 조회와 Seq Scan 해석
 
@@ -540,9 +526,9 @@ email 단일 인덱스는 UNIQUE와 중복되어 추가하지 않았다. status 
 - [x] `07_result_validation.sql`로 최종 상태를 확인했다.
 - [x] 개인 프로젝트의 반복 조회 2개와 인덱스 후보를 작성했다.
 - [x] AI 제안을 실제 실행 계획과 비교했다.
-- [x] 핵심 캡처 4장과 추가 증거 2장을 정리했다.
-- [x] 캡처에 비밀번호·개인정보가 없다.
-- [x] GitHub 웹에서 Markdown과 이미지가 정상적으로 보인다.
+- [x] 핵심 캡처 3~4장만 넣었다.
+- [ ] 캡처에 비밀번호·개인정보가 없다.
+- [ ] GitHub 웹에서 Markdown과 이미지가 정상적으로 보인다.
 - [x] 최종 답안을 commit/push했다.
 
 ---
